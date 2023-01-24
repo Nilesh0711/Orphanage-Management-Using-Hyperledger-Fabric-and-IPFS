@@ -70,8 +70,28 @@ echo "**************************************************************"
 echo
 ./deployChaincode.sh
 sleep 1
+
+echo
+echo "Removing wallets"
+echo
+cd api
+sudo rm -rf org1-wallet
+sudo rm -rf org2-wallet
+sleep 1
+
+echo 
+echo "CCP Profiles"
+echo
+
+cd config
+./generate-ccp.sh
+
+cd ../../
+
+sleep 1
+
 echo
 echo "**************************************************************"
-echo "########   Network Up  Generate CCP in API  #############"
+echo "########   Network Up   #############"
 echo "**************************************************************"
 echo

@@ -325,7 +325,7 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
         // logger.debug(args);
 
         // let message = await query.query(channelName, chaincodeName, args, fcn, req.username, req.orgname);
-        let message = await query.query(channelName, chaincodeName, args, fcn, "ORP5", "Org1");
+        let message = await query.query(channelName, chaincodeName, args, fcn, "ORP1", "Org1");
 
         const response_payload = {
             result: message,

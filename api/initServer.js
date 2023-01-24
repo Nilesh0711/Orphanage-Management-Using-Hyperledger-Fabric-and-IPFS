@@ -94,8 +94,8 @@ async function enrollAndRegisterDoctors() {
 }
 
 async function main() {
-  await enrollAdminOrg1();
-  await enrollAdminOrg2();
+  // await enrollAdminOrg1();
+  // await enrollAdminOrg2();
   // await initLedger();
   // await initRedis();
   // await enrollAndRegisterDoctors();

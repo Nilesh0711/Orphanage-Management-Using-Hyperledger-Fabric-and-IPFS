@@ -58,8 +58,7 @@ const invokeTransaction = async (
     let identity = await wallet.get(username);
     if (identity && fcn == "CreateOrphan") {
       return `An Identity of ${username} already exists in the wallet`;
-    }
-    else if (!identity){
+    } else if (!identity && fcn == "CreateOrphan") {
       console.log(
         `An identity for the user ${username} does not exist in the wallet, so registering user`
       );
@@ -71,79 +70,79 @@ const invokeTransaction = async (
         adminUserId,
         affiliation
       );
+    } else if (!identity && fcn != "CreateOrphan") {
+      return `An identity for the user ${username} does not exist in the wallet, so register user`;
     }
+
     //  else return `An Identity of ${username} already exists in the wallet`;
-      const connectOptions = {
-        wallet,
-        identity: username,
-        discovery: { enabled: true, asLocalhost: true },
-        // eventHandlerOptions: EventStrategies.NONE
-      };
-      const gateway = new Gateway();
-      await gateway.connect(ccp, connectOptions);
-      const network = await gateway.getNetwork(channelName);
-      const contract = network.getContract(chaincodeName);
+    const connectOptions = {
+      wallet,
+      identity: username,
+      discovery: { enabled: true, asLocalhost: true },
+      // eventHandlerOptions: EventStrategies.NONE
+    };
+    const gateway = new Gateway();
+    await gateway.connect(ccp, connectOptions);
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeName);
 
-      let result;
-      let message;
-      switch (fcn) {
-        case "CreatePrivateDataImplicitForOrg1":
-        case "ABACTest":
-        case "CreateContract":
-        case "CreateOrphan":
-          result = await contract.submitTransaction(
-            fcn,
-            username,
-            args.firstName,
-            args.lastName,
-            args.age,
-            args.gender,
-            args.org,
-            args.background
-          );
-          result = { txid: result.toString() };
-          break;
-        case "UpdateOrphan":
-          result = await contract.submitTransaction(
-            fcn,
-            username,
-            args.firstName,
-            args.lastName,
-            args.age,
-            args.gender,
-            args.org,
-            args.background
-          );
-          result = { txid: result.toString() };
-          break;
-        case "DeleteOrphan":
-          result = await contract.submitTransaction(
-            fcn,
-            username,
-          );
-          result = { txid: result.toString() };
-          break;
-        case "CreateDocument":
-          result = await contract.submitTransaction(
-            "DocumentContract:" + fcn,
-            args[0]
-          );
-          console.log(result.toString());
-          result = { txid: result.toString() };
-          break;
-        default:
-          break;
-      }
+    let result;
+    let message;
+    switch (fcn) {
+      case "CreatePrivateDataImplicitForOrg1":
+      case "ABACTest":
+      case "CreateContract":
+      case "CreateOrphan":
+        result = await contract.submitTransaction(
+          fcn,
+          username,
+          args.firstName,
+          args.lastName,
+          args.age,
+          args.gender,
+          args.org,
+          args.background
+        );
+        result = { txid: result.toString() };
+        break;
+      case "UpdateOrphan":
+        result = await contract.submitTransaction(
+          fcn,
+          username,
+          args.firstName,
+          args.lastName,
+          args.age,
+          args.gender,
+          args.org,
+          args.background
+        );
+        result = { txid: result.toString() };
+        break;
+      case "DeleteOrphan":
+        result = await contract.submitTransaction(fcn, username);
+        result = { txid: result.toString() };
+        break;
+      case "CreateDocument":
+        result = await contract.submitTransaction(
+          "DocumentContract:" + fcn,
+          args[0]
+        );
+        console.log(result.toString());
+        result = { txid: result.toString() };
+        break;
+      default:
+        break;
+    }
 
-      await gateway.disconnect();
+    await gateway.disconnect();
 
-      // result = JSON.parse(result.toString());
+    // result = JSON.parse(result.toString());
 
-      let response = {
-        message: message,
-        result,
-      };
-      return response;
+    let response = {
+      message: message,
+      result,
+    };
+    return response;
   } catch (error) {
     console.log(`Getting error: ${error}`);
     return error.message;
