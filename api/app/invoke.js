@@ -88,51 +88,58 @@ const invokeTransaction = async (
 
     let result;
     let message;
-    switch (fcn) {
-      case "CreatePrivateDataImplicitForOrg1":
-      case "ABACTest":
-      case "CreateContract":
-      case "CreateOrphan":
-        result = await contract.submitTransaction(
-          fcn,
-          username,
-          args.firstName,
-          args.lastName,
-          args.age,
-          args.gender,
-          args.org,
-          args.background
-        );
-        result = { txid: result.toString() };
-        break;
-      case "UpdateOrphan":
-        result = await contract.submitTransaction(
-          fcn,
-          username,
-          args.firstName,
-          args.lastName,
-          args.age,
-          args.gender,
-          args.org,
-          args.background
-        );
-        result = { txid: result.toString() };
-        break;
-      case "DeleteOrphan":
-        result = await contract.submitTransaction(fcn, username);
-        result = { txid: result.toString() };
-        break;
-      case "CreateDocument":
-        result = await contract.submitTransaction(
-          "DocumentContract:" + fcn,
-          args[0]
-        );
-        console.log(result.toString());
-        result = { txid: result.toString() };
-        break;
-      default:
-        break;
-    }
+    args.id = username;
+    result = await contract.submitTransaction(
+      fcn,
+      JSON.stringify(args)
+    );
+    result = { txid: result.toString() };
+
+    // switch (fcn) {
+    //   case "CreatePrivateDataImplicitForOrg1":
+    //   case "ABACTest":
+    //   case "CreateContract":
+    //   case "CreateOrphan":
+    //     result = await contract.submitTransaction(
+    //       fcn,
+    //       username,
+    //       args.firstName,
+    //       args.lastName,
+    //       args.age,
+    //       args.gender,
+    //       args.org,
+    //       args.background
+    //     );
+    //     result = { txid: result.toString() };
+    //     break;
+    //   case "UpdateOrphan":
+    //     result = await contract.submitTransaction(
+    //       fcn,
+    //       username,
+    //       args.firstName,
+    //       args.lastName,
+    //       args.age,
+    //       args.gender,
+    //       args.org,
+    //       args.background
+    //     );
+    //     result = { txid: result.toString() };
+    //     break;
+    //   case "DeleteOrphan":
+    //     result = await contract.submitTransaction(fcn, username);
+    //     result = { txid: result.toString() };
+    //     break;
+    //   case "CreateDocument":
+    //     result = await contract.submitTransaction(
+    //       "DocumentContract:" + fcn,
+    //       args[0]
+    //     );
+    //     console.log(result.toString());
+    //     result = { txid: result.toString() };
+    //     break;
+    //   default:
+    //     break;
+    // }
 
     await gateway.disconnect();
 

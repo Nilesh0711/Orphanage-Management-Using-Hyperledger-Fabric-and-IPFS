@@ -299,9 +299,8 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
 
         var channelName = req.params.channelName;
         var chaincodeName = req.params.chaincodeName;
-        console.log(`chaincode name is :${chaincodeName}`)
-        let args = req.query.args;
-        let fcn = req.query.fcn;
+        let args = req.body.args;
+        let fcn = req.body.fcn;
 
         if (!chaincodeName) {
             res.json(getErrorMessage('\'chaincodeName\''));
@@ -321,11 +320,11 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
         }
         console.log('args==========', args);
         // args = args.replace(/'/g, '"');
-        args = JSON.parse(args);
+        // args = JSON.parse(args);
         // logger.debug(args);
 
         // let message = await query.query(channelName, chaincodeName, args, fcn, req.username, req.orgname);
-        let message = await query.query(channelName, chaincodeName, args, fcn, "ORP1", "Org1");
+        let message = await query.query(channelName, chaincodeName, args, fcn, "ORP5", "Org1");
 
         const response_payload = {
             result: message,

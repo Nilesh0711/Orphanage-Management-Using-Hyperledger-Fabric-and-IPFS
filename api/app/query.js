@@ -57,32 +57,32 @@ const query = async (
     // Get the contract from the network.
     const contract = network.getContract(chaincodeName);
     let result;
+    args.id = username;
+    result = await contract.evaluateTransaction(fcn, JSON.stringify(args));
+    // switch (fcn) {
+    //   case "GetDocumentUsingCarContract":
+    //     console.log("=============");
+    //     result = await contract.evaluateTransaction(
+    //       "SmartContract:" + fcn,
+    //       args[0]
+    //     );
+    //     break;
+    //   case "GetHistoryForOrphan":
+    //     console.log("=============");
+    //     result = await contract.evaluateTransaction(fcn, args[0]);
+    //     break;
+    //   case "ReadOrphan":
+    //     console.log("=============");
+    //     result = await contract.evaluateTransaction(fcn, args[0]);
+    //     break;
+    //   case "GetAllOrphan":
+    //     console.log("=============");
+    //     result = await contract.evaluateTransaction(fcn);
+    //     break;
+    //   default:
+    //     break;
+    // }
 
-    switch (fcn) {
-      case "GetDocumentUsingCarContract":
-        console.log("=============");
-        result = await contract.evaluateTransaction(
-          "SmartContract:" + fcn,
-          args[0]
-        );
-        break;
-      case "GetHistoryForOrphan":
-        console.log("=============");
-        result = await contract.evaluateTransaction(fcn, args[0]);
-        break;
-      case "ReadOrphan":
-        console.log("=============");
-        result = await contract.evaluateTransaction(fcn, args[0]);
-        break;
-      case "GetAllOrphan":
-        console.log("=============");
-        result = await contract.evaluateTransaction(fcn);
-        break;
-      default:
-        break;
-    }
-
-    console.log(result);
     console.log(
       `Transaction has been evaluated, result is: ${result.toString()}`
     );
