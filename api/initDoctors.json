@@ -1,0 +1,26 @@
+[
+    {
+        "Org": "Org1",
+        "firstName": "Brick",
+        "lastName": "Wall",
+        "speciality": "Neurosurgery"
+    },
+    {
+        "Org": "Org2",
+        "firstName": "Everhart",
+        "lastName": "Hall",
+        "speciality": "Cardiology"
+    },
+    {
+        "Org": "Org1",
+        "firstName": "Peter",
+        "lastName": "Leavitt",
+        "speciality": "Cardiology"
+    },
+    {
+        "Org": "Org2",
+        "firstName": "Jeremy",
+        "lastName": "Stone",
+        "speciality": "Neurosurgery"
+    }
+]
