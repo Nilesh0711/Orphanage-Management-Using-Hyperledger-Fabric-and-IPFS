@@ -6,7 +6,8 @@
     "Age": 5,
     "Gender": "male",
     "Org":"Org1",
-    "Background": "No parents"
+    "Background": "No parents",
+    "PermissionGranted": ["adminorg1", "adminorg2"]
   },
   {
     "ID": "ORP2",
@@ -15,7 +16,8 @@
     "Age": 6,
     "Gender": "male",
     "Org":"Org2",
-    "Background": "No parents"
+    "Background": "No parents",
+    "PermissionGranted":["adminorg1", "adminorg2"]
   },
   {
     "ID": "ORP3",
@@ -24,7 +26,8 @@
     "Age": 7,
     "Gender": "male",
     "Org":"Org1",
-    "Background": "No parents"
+    "Background": "No parents",
+    "PermissionGranted": ["adminorg1", "adminorg2"]
   },
   {
     "ID": "ORP4",
@@ -33,6 +36,7 @@
     "Age": 8,
     "Gender": "male",
     "Org":"Org2",
-    "Background": "No parents"
+    "Background": "No parents",
+    "PermissionGranted": ["adminorg1", "adminorg2"]
   }
 ]

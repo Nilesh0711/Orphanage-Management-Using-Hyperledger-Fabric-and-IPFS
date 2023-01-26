@@ -9,7 +9,7 @@ const {
 const fs = require("fs");
 const EventStrategies = require("fabric-network/lib/impl/event/defaulteventhandlerstrategies");
 const { buildCAClient, registerAndEnrollUser } = require("./CAUtils");
-const { buildCCPOrg1, buildCCPOrg2, buildWallet } = require("./AppUtils");
+const { buildCCPOrg1, buildCCPOrg2, buildWallet, buildAffliation } = require("./AppUtils");
 const FabricCAServices = require("fabric-ca-client");
 const path = require("path");
 const log4js = require("log4js");
@@ -25,11 +25,12 @@ const invokeTransaction = async (
   fcn,
   args,
   username,
-  org_name
+  org_name,
+  userIdentity
+
 ) => {
   try {
     let ccp, walletPath, caClient, adminUserId, wallet, affiliation;
-
     if (org_name == "Org1") {
       ccp = buildCCPOrg1();
       walletPath = path.resolve(__dirname, "..", "org1-wallet");
@@ -43,7 +44,8 @@ const invokeTransaction = async (
       wallet = await buildWallet(Wallets, walletPath);
       caClient = buildCAClient(FabricCAServices, ccp, "ca.org2.example.com");
     }
-    affiliation = await helper.getAffiliation(org_name);
+    affiliation = buildAffliation(org_name);
+    
     console.log(
       "\n==================\n",
       channelName,
@@ -90,7 +92,7 @@ const invokeTransaction = async (
     let message;
     args.id = username;
     result = await contract.submitTransaction(
-      fcn,
+      userIdentity+"Contract:"+fcn,
       JSON.stringify(args)
     );
     result = { txid: result.toString() };

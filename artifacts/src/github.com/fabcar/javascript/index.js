@@ -4,9 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-'use strict';
+"use strict";
 
-const orphanage = require('./lib/Orphanage');
+const OrphanageContract = require("./lib/orphanageContract");
+const DoctorContract = require("./lib/doctorContract");
+const AdminContract = require("./lib/adminContract");
 
-module.exports.Orphanage = orphanage;
-module.exports.contracts = [orphanage];
+module.exports.OrphanageContract = OrphanageContract;
+module.exports.DoctorContract = DoctorContract;
+module.exports.AdminContract = AdminContract;
+
+module.exports.contracts = [OrphanageContract, AdminContract, DoctorContract];

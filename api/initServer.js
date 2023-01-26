@@ -1,8 +1,8 @@
 const fs = require("fs");
-const { enrollAdminOrg1 } = require("./enrollAdmin-Org1");
-const { enrollAdminOrg2 } = require("./enrollAdmin-Org2");
-const { createRedisForDoctor } = require("./utils");
-const { enrollRegisterUser } = require("./registerUser");
+const { enrollAdminOrg1 } = require("./prestart/enrollAdmin-Org1");
+const { enrollAdminOrg2 } = require("./prestart/enrollAdmin-Org2");
+const { createRedisForDoctor } = require("./utils/utils");
+const { enrollRegisterUser } = require("./prestart/registerUser");
 const redis = require("redis");
 
 async function initLedger() {
@@ -72,7 +72,7 @@ async function initRedis() {
 
 async function enrollAndRegisterDoctors() {
   try {
-    const jsonString = fs.readFileSync("./initDoctors.json");
+    const jsonString = fs.readFileSync("./prestart/initDoctors.json");
     const doctors = JSON.parse(jsonString);
     for (let i = 0; i < doctors.length; i++) {
       const attr = {
@@ -94,9 +94,9 @@ async function enrollAndRegisterDoctors() {
 }
 
 async function main() {
-  await enrollAdminOrg1();
-  await enrollAdminOrg2();
-  await initLedger();
+  // await enrollAdminOrg1();
+  // await enrollAdminOrg2();
+  // await initLedger();
   // await initRedis();
   // await enrollAndRegisterDoctors();
 }

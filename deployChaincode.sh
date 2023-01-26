@@ -4,7 +4,7 @@ export PEER0_ORG1_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/or
 export PEER0_ORG2_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
 export FABRIC_CFG_PATH=${PWD}/artifacts/channel/config/
 
-export PRIVATE_DATA_CONFIG=${PWD}/artifacts/private-data/collections_config.json
+# export PRIVATE_DATA_CONFIG=${PWD}/artifacts/private-data/collections_config.json
 
 export CHANNEL_NAME=mychannel
 

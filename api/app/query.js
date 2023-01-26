@@ -3,17 +3,23 @@ const fs = require("fs");
 const path = require("path");
 const log4js = require("log4js");
 const logger = log4js.getLogger("BasicNetwork");
-const { buildCCPOrg1, buildCCPOrg2, buildWallet } = require("./AppUtils");
+const {
+  buildCCPOrg1,
+  buildCCPOrg2,
+  buildWallet,
+  buildAffliation,
+} = require("./AppUtils");
 const util = require("util");
 
 const helper = require("./helper");
 const query = async (
   channelName,
   chaincodeName,
-  args,
   fcn,
+  args,
   username,
-  org_name
+  org_name,
+  userIdentity
 ) => {
   try {
     let ccp, walletPath;
@@ -58,7 +64,10 @@ const query = async (
     const contract = network.getContract(chaincodeName);
     let result;
     args.id = username;
-    result = await contract.evaluateTransaction(fcn, JSON.stringify(args));
+    result = await contract.evaluateTransaction(
+      userIdentity+"Contract:"+fcn,
+      JSON.stringify(args)
+    );
     // switch (fcn) {
     //   case "GetDocumentUsingCarContract":
     //     console.log("=============");

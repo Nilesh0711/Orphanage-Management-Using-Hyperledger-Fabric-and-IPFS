@@ -1,17 +1,17 @@
 const { Wallets } = require("fabric-network");
 const FabricCAServices = require("fabric-ca-client");
 const path = require("path");
-const { buildCAClient, registerAndEnrollUser } = require("./app/CAUtils");
-const { buildCCPOrg1, buildCCPOrg2, buildWallet } = require("./app/AppUtils");
-const helper = require("./app/helper");
+const { buildCAClient, registerAndEnrollUser } = require("../app/CAUtils");
+const { buildCCPOrg1, buildCCPOrg2, buildWallet, buildAffliation } = require("../app/AppUtils");
 let walletPath;
 let mspOrg;
 let adminUserId;
 let caClient;
+let affiliation
+let wallet;
 exports.enrollRegisterUser = async function (org, userId, attributes) {
   try {
     // setup the wallet to hold the credentials of the application user
-    let wallet;
     if (org == "Org1") {
       // build an in memory object with the network configuration (also known as a connection profile)
       const ccp = buildCCPOrg1();
@@ -41,7 +41,7 @@ exports.enrollRegisterUser = async function (org, userId, attributes) {
       adminUserId = "adminorg2";
     }
     // enrolls users to Hospital 1 and adds the user to the wallet
-    let affiliation = await helper.getAffiliation(org);
+    affiliation = buildAffliation(org)
     await registerAndEnrollUser(
       caClient,
       wallet,

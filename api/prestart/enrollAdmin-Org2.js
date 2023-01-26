@@ -1,8 +1,8 @@
 const {Wallets} = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
-const {buildCAClient, enrollAdmin} = require('./app/CAUtils');
-const {buildCCPOrg2, buildWallet} = require('./app/AppUtils');
+const {buildCAClient, enrollAdmin} = require('../app/CAUtils');
+const {buildCCPOrg2, buildWallet} = require('../app/AppUtils');
 const org = 'Org2';
 const walletPath = path.join(process.cwd(), "org2-wallet");
 

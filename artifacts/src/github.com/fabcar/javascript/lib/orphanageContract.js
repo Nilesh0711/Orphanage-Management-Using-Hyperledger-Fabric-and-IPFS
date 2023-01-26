@@ -9,41 +9,45 @@
 const { Contract } = require("fabric-contract-api");
 let initOrphange = require("./initLedger.json");
 
-class Orphanage extends Contract {
+class OrphanageContract extends Contract {
+
+  // Init Ledger issues a new assets to the world state which runs only on deploy of chaincode
   async InitLedger(ctx) {
+    // console.log('\n============= START : Initialize Ledger ===========\n');
     for (const orphan of initOrphange) {
-      orphan.docType = "orphan";
+      // orphan.docType = "orphan";
       await ctx.stub.putState(orphan.ID, Buffer.from(JSON.stringify(orphan)));
       console.info(`Orphan ${orphan.ID} initialized`);
     }
+    // console.log('\n============= END : Initialize Ledger ===========\n');
   }
 
   // CreateAsset issues a new asset to the world state with given details.
-  async CreateOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let id = args.id;
-    let firstName = args.firstName;
-    let lastName = args.lastName;
-    let age = args.age;
-    let gender = args.gender;
-    let org = args.org;
-    let background = args.background;
-    const exists = await this.OrphanExists(ctx, JSON.stringify(args));
-    if (exists) {
-      throw new Error(`The asset ${id} does not exist`);
-    }
-    const orphan = {
-      ID: id,
-      firstName: firstName,
-      lastName: lastName,
-      Age: age,
-      Gender: gender,
-      Org: org,
-      Background: background,
-    };
-    ctx.stub.putState(id, Buffer.from(JSON.stringify(orphan)));
-    return JSON.stringify(orphan);
-  }
+  // async CreateOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let id = args.id;
+  //   let firstName = args.firstName;
+  //   let lastName = args.lastName;
+  //   let age = args.age;
+  //   let gender = args.gender;
+  //   let org = args.org;
+  //   let background = args.background;
+  //   const exists = await this.OrphanExists(ctx, JSON.stringify(args));
+  //   if (exists) {
+  //     throw new Error(`The asset ${id} does not exist`);
+  //   }
+  //   const orphan = {
+  //     ID: id,
+  //     firstName: firstName,
+  //     lastName: lastName,
+  //     Age: age,
+  //     Gender: gender,
+  //     Org: org,
+  //     Background: background,
+  //   };
+  //   ctx.stub.putState(id, Buffer.from(JSON.stringify(orphan)));
+  //   return JSON.stringify(orphan);
+  // }
 
   // ReadAsset returns the asset stored in the world state with given id.
   async ReadOrphan(ctx, args) {
@@ -58,43 +62,43 @@ class Orphanage extends Contract {
   }
 
   // UpdateAsset updates an existing asset in the world state with provided parameters.
-  async UpdateOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let id = args.id;
-    let firstName = args.firstName;
-    let lastName = args.lastName;
-    let age = args.age;
-    let gender = args.gender;
-    let org = args.org;
-    let background = args.background;
-    const exists = await this.OrphanExists(ctx, JSON.stringify(args));
-    if (!exists) {
-      throw new Error(`The asset ${id} does not exist`);
-    }
+  // async UpdateOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let id = args.id;
+  //   let firstName = args.firstName;
+  //   let lastName = args.lastName;
+  //   let age = args.age;
+  //   let gender = args.gender;
+  //   let org = args.org;
+  //   let background = args.background;
+  //   const exists = await this.OrphanExists(ctx, JSON.stringify(args));
+  //   if (!exists) {
+  //     throw new Error(`The asset ${id} does not exist`);
+  //   }
 
-    // overwriting original asset with new asset
-    const updatedOrphan = {
-      ID: id,
-      firstName: firstName,
-      lastName: lastName,
-      Age: age,
-      Gender: gender,
-      Org: org,
-      Background: background,
-    };
-    return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedOrphan)));
-  }
+  //   // overwriting original asset with new asset
+  //   const updatedOrphan = {
+  //     ID: id,
+  //     firstName: firstName,
+  //     lastName: lastName,
+  //     Age: age,
+  //     Gender: gender,
+  //     Org: org,
+  //     Background: background,
+  //   };
+  //   return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedOrphan)));
+  // }
 
   // DeleteAsset deletes an given asset from the world state.
-  async DeleteOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let id = args.id;
-    const exists = await this.OrphanExists(ctx, JSON.stringify(args));
-    if (!exists) {
-      throw new Error(`The asset ${id} does not exist`);
-    }
-    return ctx.stub.deleteState(id);
-  }
+  // async DeleteOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let id = args.id;
+  //   const exists = await this.OrphanExists(ctx, JSON.stringify(args));
+  //   if (!exists) {
+  //     throw new Error(`The asset ${id} does not exist`);
+  //   }
+  //   return ctx.stub.deleteState(id);
+  // }
 
   // AssetExists returns true when asset with given ID exists in world state.
   async OrphanExists(ctx, args) {
@@ -170,6 +174,7 @@ class Orphanage extends Contract {
     iterator.close();
     return allResults;
   }
+
 }
 
-module.exports = Orphanage;
+module.exports = OrphanageContract;

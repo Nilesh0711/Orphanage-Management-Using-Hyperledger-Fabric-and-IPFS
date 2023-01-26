@@ -64,3 +64,7 @@ exports.prettyJSONString = (inputString) => {
     return inputString;
   }
 };
+
+exports.buildAffliation = (org_name) =>{
+  return org_name == "Org1" ? "org1.department1" : "org2.department1";
+}
