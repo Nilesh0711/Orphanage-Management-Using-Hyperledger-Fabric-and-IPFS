@@ -278,7 +278,7 @@ app.post(
         chaincodeName,
         fcn,
         args,
-        "ORP5",
+        "adminorg1",
         "Org1",
         "Admin"
       );
@@ -341,7 +341,7 @@ app.get(
         args,
         "ORP5",
         "Org1",
-        "Doctor"
+        "Admin"
       );
 
       const response_payload = {

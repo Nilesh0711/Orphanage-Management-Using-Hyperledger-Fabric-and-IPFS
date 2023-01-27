@@ -19,10 +19,6 @@ class DoctorContract extends AdminContract {
       ctx,
       JSON.stringify(args)
     );
-
-    // Get the doctorID, retrieves the id used to connect the network
-    // let doctorId = await this.getClientId(ctx);
-    // Check if doctor has the permission to read the Orphan
     asset = JSON.parse(asset);
     const permissionArray = asset.PermissionGranted;
     if (!permissionArray.includes(id)) {

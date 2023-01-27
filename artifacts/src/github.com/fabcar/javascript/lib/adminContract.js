@@ -44,30 +44,31 @@ class AdminContract extends OrphanageContract {
   }
 
   //Read orphan details based on orphanId
-  // async ReadOrphan(ctx, args) {
-  //   let asset = await super.ReadOrphan(ctx, args);
-  //   asset = {
-  //     ID: asset.ID,
-  //     firstName: asset.firstName,
-  //     lastName: asset.lastName,
-  //     Age: asset.Age,
-  //     Gender: asset.Gender,
-  //     Org: asset.Org,
-  //     Background: asset.Background,
-  //   };
-  //   return asset;
-  // }
-
   async ReadOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let id = args.id;
-    let userId = args.userId;
-    const dataJSON = await ctx.stub.getState(userId); // get the asset from chaincode state
-    if (!dataJSON || dataJSON.length === 0) {
-      throw new Error(`The orphan ${id} does not exist`);
-    }
-    return dataJSON.toString();
+    let asset = await OrphanageContract.prototype.ReadOrphan(ctx, args);
+    asset = JSON.parse(asset)
+    asset = {
+      ID: asset.ID,
+      firstName: asset.firstName,
+      lastName: asset.lastName,
+      Age: asset.Age,
+      Gender: asset.Gender,
+      Org: asset.Org,
+      Background: asset.Background,
+    };
+    return asset;
   }
+
+  // async ReadOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let id = args.id;
+  //   let userId = args.userId;
+  //   const dataJSON = await ctx.stub.getState(userId); // get the asset from chaincode state
+  //   if (!dataJSON || dataJSON.length === 0) {
+  //     throw new Error(`The orphan ${id} does not exist`);
+  //   }
+  //   return dataJSON.toString();
+  // }
 
   // UpdateAsset updates an existing asset in the world state with provided parameters.
   async UpdateOrphan(ctx, args) {
