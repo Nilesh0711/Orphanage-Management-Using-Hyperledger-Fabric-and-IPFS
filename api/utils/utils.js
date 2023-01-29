@@ -41,7 +41,7 @@ exports.capitalize = function (s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-exports.createRedisForDoctor = async function (org, i, firstName) {
+exports.createRedisForDoctor = async function (org, i) {
   // TODO: Handle using config file
   let redisPassword, port, doctorPassword;
   if (org == "Org1") {
@@ -62,10 +62,10 @@ exports.createRedisForDoctor = async function (org, i, firstName) {
   });
   redisClient.connect();
   redisClient.on("connect", (err) => {
-    console.log(`doctor ${firstName} redis connected`);
+    console.log(`doctor added to redis`);
   });
   try {
-    await redisClient.set(org + "-" + "DOC" + i, doctorPassword);
+    await redisClient.set(org + "-" +"DOC" + i, doctorPassword);
     redisClient.quit();
     return true;
   } catch (error) {

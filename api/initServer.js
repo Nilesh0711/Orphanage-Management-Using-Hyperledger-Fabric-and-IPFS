@@ -81,7 +81,7 @@ async function enrollAndRegisterDoctors() {
         role: "doctor",
         speciality: doctors[i].speciality,
       };
-      await createRedisForDoctor(doctors[i].Org,i, doctors[i].firstName)
+      await createRedisForDoctor(doctors[i].Org,i)
       await enrollRegisterUser(
         doctors[i].Org,
         doctors[i].Org + "-" + "DOC" + i,
@@ -97,8 +97,8 @@ async function main() {
   await enrollAdminOrg1();
   await enrollAdminOrg2();
   await initLedger();
+  await enrollAndRegisterDoctors();
   // await initRedis();
-  // await enrollAndRegisterDoctors();
 }
 
 main();
