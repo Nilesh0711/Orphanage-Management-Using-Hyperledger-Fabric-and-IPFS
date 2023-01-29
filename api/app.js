@@ -27,9 +27,9 @@ app.use(
 
 // verify token
 function verifyToken(req, res, next) {
-  req.body.org = "Org2";
+  req.body.org = "Org1";
   req.body.role = "Admin";
-  req.body.username = "adminorg2";
+  req.body.username = "adminorg1";
   next();
 }
 
@@ -81,6 +81,15 @@ app.post(
   }
 );
 
+// create doctor api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-create-doctor",
+  verifyToken,
+  async function (req, res) {
+    await adminRoutes.createDoctor(req, res);
+  }
+);
+
 // read orphan api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-read-orphan",
@@ -100,15 +109,16 @@ app.get(
 );
 
 // get all doctor api
-
-// create doctor api
-app.post(
-  "/channels/:channelName/chaincodes/:chaincodeName/admin-create-doctor",
+// query all orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-doctor",
   verifyToken,
   async function (req, res) {
-    await adminRoutes.createDoctor(req, res);
+    await adminRoutes.getDoctorsByOrgId(req, res);
   }
 );
+
+
 
 // ****************************************************** DOCTOR APIS ************************************************************************
 

@@ -16,7 +16,7 @@ async function initLedger() {
       const attr = {
         firstName: orphans[i].firstName,
         lastName: orphans[i].lastName,
-        role: "client",
+        role: "orphan",
       };
       let org;
       orphans[i].Org == "Org1" ? (org = "Org1") : (org = "Org2");

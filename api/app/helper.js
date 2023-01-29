@@ -103,7 +103,7 @@ exports.invoke = async function (networkObj, isQuery, func, args, res) {
   }
 };
 
-exports.registerUser = async function (org_name, userIdToAdd) {
+exports.registerUser = async function (org_name, userIdToAdd, attributes) {
   // const attrs = JSON.parse(attributes);
   // const hospitalId = parseInt(attrs.hospitalId);
   // const userId = attrs.userId;
@@ -135,7 +135,8 @@ exports.registerUser = async function (org_name, userIdToAdd) {
       org_name,
       userIdToAdd,
       adminUserId,
-      affiliation
+      affiliation,
+      attributes
     );
     console.log(`Successfully registered user: + ${userIdToAdd}`);
     const response = "Successfully registered user: " + userIdToAdd;
@@ -148,57 +149,56 @@ exports.registerUser = async function (org_name, userIdToAdd) {
   }
 };
 
-// exports.getAllDoctorsByHospitalId = async function (networkObj, hospitalId) {
-//   // Get the User from the identity context
-//   const users = networkObj.gateway.identityContext.user;
-//   let caClient;
-//   const result = [];
-//   try {
-//     // TODO: Must be handled in a config file instead of using if
-//     if (hospitalId === 1) {
-//       const ccp = buildCCPHosp1();
-//       caClient = buildCAClient(FabricCAServices, ccp, "ca.hosp1.lithium.com");
-//     } else if (hospitalId === 2) {
-//       const ccp = buildCCPHosp2();
-//       caClient = buildCAClient(FabricCAServices, ccp, "ca.hosp2.lithium.com");
-//     } else if (hospitalId === 3) {
-//       const ccp = buildCCPHosp3();
-//       caClient = buildCAClient(FabricCAServices, ccp, "ca.hosp3.lithium.com");
-//     }
+exports.getAllDoctorsByOrgId = async function (networkObj, org) {
+  // Get the User from the identity context
+  const users = networkObj.gateway.identityContext.user;
+  let caClient;
+  const result = [];
+  try {
+    // TODO: Must be handled in a config file instead of using if
 
-//     // Use the identity service to get the user enrolled using the respective CA
-//     const idService = caClient.newIdentityService();
-//     const userList = await idService.getAll(users);
+    if (org == "Org1") {
+      const ccp = buildCCPOrg1();
+      caClient = buildCAClient(FabricCAServices, ccp, "ca.org1.example.com");
 
-//     // for all identities the attrs can be found
-//     const identities = userList.result.identities;
+    } else if (org == "Org2") {
+      const ccp = buildCCPOrg2();
+      caClient = buildCAClient(FabricCAServices, ccp, "ca.org2.example.com");
+    }
 
-//     for (let i = 0; i < identities.length; i++) {
-//       tmp = {};
-//       if (identities[i].type === "client") {
-//         tmp.id = identities[i].id;
-//         tmp.role = identities[i].type;
-//         attributes = identities[i].attrs;
-//         // Doctor object will consist of firstName and lastName
-//         for (let j = 0; j < attributes.length; j++) {
-//           if (
-//             attributes[j].name.endsWith("Name") ||
-//             attributes[j].name === "role" ||
-//             attributes[j].name === "speciality"
-//           ) {
-//             tmp[attributes[j].name] = attributes[j].value;
-//           }
-//         }
-//         result.push(tmp);
-//       }
-//     }
-//   } catch (error) {
-//     console.error(`Unable to get all doctors : ${error}`);
-//     const response = {};
-//     response.error = error;
-//     return response;
-//   }
-//   return result.filter(function (result) {
-//     return result.role === "doctor";
-//   });
-// };
+    // Use the identity service to get the user enrolled using the respective CA
+    const idService = caClient.newIdentityService();
+    const userList = await idService.getAll(users);
+
+    // for all identities the attrs can be found
+    const identities = userList.result.identities;
+
+    for (let i = 0; i < identities.length; i++) {
+      tmp = {};
+      if (identities[i].type === "client") {
+        tmp.id = identities[i].id;
+        tmp.role = identities[i].type;
+        attributes = identities[i].attrs;
+        // Doctor object will consist of firstName and lastName
+        for (let j = 0; j < attributes.length; j++) {
+          if (
+            attributes[j].name.endsWith("Name") ||
+            attributes[j].name === "role" ||
+            attributes[j].name === "speciality"
+          ) {
+            tmp[attributes[j].name] = attributes[j].value;
+          }
+        }
+        result.push(tmp);
+      }
+    }
+  } catch (error) {
+    console.error(`Unable to get all doctors : ${error}`);
+    const response = {};
+    response.error = error;
+    return response;
+  }
+  return result.filter(function (result) {
+    return result.role === "doctor";
+  });
+};
