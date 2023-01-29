@@ -74,18 +74,23 @@ exports.connectToNetwork = async function (id, org) {
 
 exports.invoke = async function (networkObj, isQuery, func, args) {
   try {
-    if (isQuery === true) {
+    if (isQuery == true) {
+      console.log("Quering contract");
+      console.log("arguments for quering contract");
+      console.log(JSON.parse(args));
       const response = await networkObj.contract.evaluateTransaction(
         func,
         args
       );
-      console.log(response);
       await networkObj.gateway.disconnect();
       return response;
     } else {
+      console.log("Invoking contract");
+      console.log("arguments for invoking contract");
+      console.log(JSON.parse(args));
       const response = await networkObj.contract.submitTransaction(
         func,
-        JSON.stringify(args)
+        args
       );
       await networkObj.gateway.disconnect();
       return response;
@@ -98,7 +103,7 @@ exports.invoke = async function (networkObj, isQuery, func, args) {
   }
 };
 
-exports.registerUser = async function (org_name, username) {
+exports.registerUser = async function (org_name, userIdToAdd) {
   // const attrs = JSON.parse(attributes);
   // const hospitalId = parseInt(attrs.hospitalId);
   // const userId = attrs.userId;
@@ -128,15 +133,15 @@ exports.registerUser = async function (org_name, username) {
       caClient,
       wallet,
       org_name,
-      username,
+      userIdToAdd,
       adminUserId,
       affiliation
     );
-    console.log(`Successfully registered user: + ${username}`);
-    const response = "Successfully registered user: " + username;
+    console.log(`Successfully registered user: + ${userIdToAdd}`);
+    const response = "Successfully registered user: " + userIdToAdd;
     return response;
   } catch (error) {
-    console.error(`Failed to register user + ${username} + : ${error}`);
+    console.error(`Failed to register user + ${userIdToAdd} + : ${error}`);
     const response = {};
     response.error = error;
     return response;

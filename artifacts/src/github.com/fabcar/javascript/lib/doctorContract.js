@@ -11,30 +11,30 @@ const AdminContract = require("./adminContract.js");
 
 class DoctorContract extends AdminContract {
   //Read Orphan details based on OrphanId
-  async ReadOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let id = args.id;
-    let userId = args.userId;
-    let asset = await OrphanageContract.prototype.ReadOrphan(
-      ctx,
-      JSON.stringify(args)
-    );
-    asset = JSON.parse(asset);
-    const permissionArray = asset.PermissionGranted;
-    if (!permissionArray.includes(id)) {
-      throw new Error(
-        `The doctor ${id} does not have permission to patient ${userId}`
-      );
-    }
-    asset = {
-      ID: asset.ID,
-      firstName: asset.firstName,
-      lastName: asset.lastName,
-      //   Age: asset.Age,
-      //   Gender: asset.Gender,
-    };
-    return asset;
-  }
+  // async ReadOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let id = args.id;
+  //   let userId = args.userId;
+  //   let asset = await OrphanageContract.prototype.ReadOrphan(
+  //     ctx,
+  //     JSON.stringify(args)
+  //   );
+  //   asset = JSON.parse(asset);
+  //   const permissionArray = asset.PermissionGranted;
+  //   if (!permissionArray.includes(id)) {
+  //     throw new Error(
+  //       `The doctor ${id} does not have permission to patient ${userId}`
+  //     );
+  //   }
+  //   asset = {
+  //     ID: asset.ID,
+  //     firstName: asset.firstName,
+  //     lastName: asset.lastName,
+  //     //   Age: asset.Age,
+  //     //   Gender: asset.Gender,
+  //   };
+  //   return asset;
+  // }
 
   //This function is to update Orphan medical details. This function should be called by only doctor.
   // async updateOrphanMedicalDetails(ctx, args) {
@@ -106,60 +106,60 @@ class DoctorContract extends AdminContract {
   // }
 
   //Retrieves orphan medical history based on orphanId
-  async GetOrphanHistory(ctx, args) {
-    args = JSON.parse(args);
-    let userId = args.userId;
-    let resultsIterator = await ctx.stub.getHistoryForKey(userId);
-    let asset = await this.GetAllResults(resultsIterator, true);
+  // async GetOrphanHistory(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let userId = args.userId;
+  //   let resultsIterator = await ctx.stub.getHistoryForKey(userId);
+  //   let asset = await this.GetAllResults(resultsIterator, true);
 
-    return this.fetchLimitedFields(asset, false);
-  }
+  //   return this.fetchLimitedFields(asset, false);
+  // }
 
   //Retrieves all orphan details
-  async QueryAllOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let id = args.id;
-    let userId = args.userId;
-    let resultsIterator = await ctx.stub.getStateByRange("", "");
-    let asset = await this.GetAllResults(resultsIterator, false);
-    const permissionedAssets = [];
-    for (let i = 0; i < asset.length; i++) {
-      const obj = asset[i];
-      if (
-        "PermissionGranted" in obj.Record &&
-        obj.Record.PermissionGranted.includes(id)
-      ) {
-        permissionedAssets.push(asset[i]);
-      }
-    }
+  // async QueryAllOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let id = args.id;
+  //   let userId = args.userId;
+  //   let resultsIterator = await ctx.stub.getStateByRange("", "");
+  //   let asset = await this.GetAllResults(resultsIterator, false);
+  //   const permissionedAssets = [];
+  //   for (let i = 0; i < asset.length; i++) {
+  //     const obj = asset[i];
+  //     if (
+  //       "PermissionGranted" in obj.Record &&
+  //       obj.Record.PermissionGranted.includes(id)
+  //     ) {
+  //       permissionedAssets.push(asset[i]);
+  //     }
+  //   }
 
-    return this.fetchLimitedFields(permissionedAssets);
-  }
+  //   return this.fetchLimitedFields(permissionedAssets);
+  // }
 
-  fetchLimitedFields = (asset, includeTimeStamp = false) => {
-    for (let i = 0; i < asset.length; i++) {
-      const obj = asset[i];
-      asset[i] = {
-        ID: obj.Key,
-        firstName: obj.Record.firstName,
-        lastName: obj.Record.lastName,
-        Age: obj.Record.Age,
-        Gender: obj.Record.Gender,
-      };
-      if (includeTimeStamp) {
-        asset[i].changedBy = obj.Record.changedBy;
-        asset[i].Timestamp = obj.Timestamp;
-      }
-    }
-    return asset;
-  };
+  // fetchLimitedFields = (asset, includeTimeStamp = false) => {
+  //   for (let i = 0; i < asset.length; i++) {
+  //     const obj = asset[i];
+  //     asset[i] = {
+  //       ID: obj.Key,
+  //       firstName: obj.Record.firstName,
+  //       lastName: obj.Record.lastName,
+  //       Age: obj.Record.Age,
+  //       Gender: obj.Record.Gender,
+  //     };
+  //     if (includeTimeStamp) {
+  //       asset[i].changedBy = obj.Record.changedBy;
+  //       asset[i].Timestamp = obj.Timestamp;
+  //     }
+  //   }
+  //   return asset;
+  // };
 
-  async getClientId(ctx) {
-    const clientIdentity = ctx.clientIdentity.getID();
-    // Ouput of the above - 'x509::/OU=client/OU=org1/OU=department1/CN=ORP5::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=fabric-ca-server'
-    let identity = clientIdentity.split("::");
-    identity = identity[1].split("/")[4].split("=");
-    return identity[1].toString("utf8");
-  }
+  // async getClientId(ctx) {
+  //   const clientIdentity = ctx.clientIdentity.getID();
+  //   // Ouput of the above - 'x509::/OU=client/OU=org1/OU=department1/CN=ORP5::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=fabric-ca-server'
+  //   let identity = clientIdentity.split("::");
+  //   identity = identity[1].split("/")[4].split("=");
+  //   return identity[1].toString("utf8");
+  // }
 }
 module.exports = DoctorContract;

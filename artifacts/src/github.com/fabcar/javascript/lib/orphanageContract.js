@@ -52,7 +52,6 @@ class OrphanageContract extends Contract {
   // ReadAsset returns the asset stored in the world state with given id.
   async ReadOrphan(ctx, args) {
     args = JSON.parse(args);
-    let id = args.id;
     let userId = args.userId;
     const dataJSON = await ctx.stub.getState(userId); // get the asset from chaincode state
     if (!dataJSON || dataJSON.length === 0) {
@@ -103,8 +102,8 @@ class OrphanageContract extends Contract {
   // AssetExists returns true when asset with given ID exists in world state.
   async OrphanExists(ctx, args) {
     args = JSON.parse(args);
-    let id = args.id;
-    const dataJSON = await ctx.stub.getState(id);
+    let userId = args.userId;
+    const dataJSON = await ctx.stub.getState(userId);
     return dataJSON && dataJSON.length > 0;
   }
 
@@ -136,8 +135,8 @@ class OrphanageContract extends Contract {
 
   async GetHistoryForOrphan(ctx, args) {
     args = JSON.parse(args);
-    let id = args.id;
-    let resultsIterator = await ctx.stub.getHistoryForKey(id);
+    let userId = args.userId;
+    let resultsIterator = await ctx.stub.getHistoryForKey(userId);
     let results = await this.GetAllResults(resultsIterator, true);
     return JSON.stringify(results);
   }

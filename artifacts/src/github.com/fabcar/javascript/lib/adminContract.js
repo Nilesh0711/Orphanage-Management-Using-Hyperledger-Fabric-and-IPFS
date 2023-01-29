@@ -5,6 +5,7 @@
  */
 
 "use strict";
+const { getgid } = require("process");
 const OrphanageContract = require("./orphanageContract.js");
 const Orphan = require("./OrphanModel");
 
@@ -18,7 +19,7 @@ class AdminContract extends OrphanageContract {
 
   //Create orphan in the ledger
   async CreateOrphan(ctx, args) {
-    args = JSON.parse(args);
+    args = JSON.parse(args.toString());
     let id = args.id;
     let firstName = args.firstName;
     let lastName = args.lastName;
@@ -26,7 +27,8 @@ class AdminContract extends OrphanageContract {
     let gender = args.gender;
     let org = args.org;
     let background = args.background;
-    const exists = await this.OrphanExists(ctx, JSON.stringify(args));
+    let data = { userId: id };
+    const exists = await this.OrphanExists(ctx, JSON.stringify(data));
     if (exists) {
       return `The user ${id} already exist`;
     }
@@ -46,7 +48,7 @@ class AdminContract extends OrphanageContract {
   //Read orphan details based on orphanId
   async ReadOrphan(ctx, args) {
     let asset = await OrphanageContract.prototype.ReadOrphan(ctx, args);
-    asset = JSON.parse(asset)
+    asset = JSON.parse(asset);
     asset = {
       ID: asset.ID,
       firstName: asset.firstName,
@@ -55,6 +57,7 @@ class AdminContract extends OrphanageContract {
       Gender: asset.Gender,
       Org: asset.Org,
       Background: asset.Background,
+      PermissionGranted: asset.PermissionGranted,
     };
     return asset;
   }
@@ -98,10 +101,53 @@ class AdminContract extends OrphanageContract {
     return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedOrphan)));
   }
 
+  async GrantAccessToDoctor(ctx, args) {
+    args = JSON.parse(args);
+    let userId = args.userId;
+    let doctorId = args.doctorId;
+    let data = {
+      userId: userId,
+    };
+
+    const orphan = await OrphanageContract.prototype.ReadOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan);
+
+    if (!orphan.PermissionGranted.includes(doctorId)) {
+      orphan.PermissionGranted.push(doctorId);
+    }
+
+    return ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+  }
+
+  async RevokeAccessFromDoctor(ctx, args) {
+    args = JSON.parse(args);
+    let userId = args.userId;
+    let doctorId = args.doctorId;
+    let data = {
+      userId: userId,
+    };
+
+    const orphan = await OrphanageContract.prototype.ReadOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan);
+
+    if (!orphan.PermissionGranted.includes(doctorId)) {
+      orphan.PermissionGranted = orphan.PermissionGranted.filter(
+        (doctor) => doctor != doctorId
+      );
+    }
+
+    return ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+  }
+
   //Delete orphan from the ledger based on orphanId
   async DeleteOrphan(ctx, args) {
     args = JSON.parse(args);
-    let id = args.uid;
     let userId = args.userId;
     const exists = await this.OrphanExists(ctx, JSON.stringify(args));
     if (!exists) {

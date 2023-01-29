@@ -1,49 +1,82 @@
 // Bring common classes into scope, and Fabric SDK network class
-// const {ROLE_ADMIN, ROLE_DOCTOR, capitalize, getMessage, validateRole, createRedisClient} = require('../utils.js');
-const network = require('../app/helper');
+const {
+  ROLE_ADMIN,
+  ROLE_DOCTOR,
+  capitalize,
+  getMessage,
+  validateRole,
+  createRedisClient,
+} = require("../utils/utils");
+const network = require("../app/helper");
 
 exports.createOrphan = async (req, res) => {
   // User role from the request header is validated
-//   const userRole = req.headers.role;
-//   await validateRole([ROLE_ADMIN], userRole, res);
-  // Set up and connect to Fabric Gateway using the username in header
-  let username = "adminorg1"
-  let org = "Org1"
-  const networkObj = await network.connectToNetwork(username,org);
 
-  // Generally we create patient id by ourself so if patient id is not present in the request then fetch last id
-  // from ledger and increment it by one. Since we follow patient id pattern as "PID0", "PID1", ...
-  // 'slice' method omits first three letters and take number
-  if (!('patientId' in req.body) || req.body.patientId === null || req.body.patientId === '') {
-    const lastId = await network.invoke(networkObj, true, capitalize(userRole) + 'Contract:getLatestPatientId');
-    req.body.patientId = 'PID' + (parseInt(lastId.slice(3)) + 1);
+  // return res.send(JSON.parse(req.body))
+
+  const userRole = req.body.role;
+  await validateRole([ROLE_ADMIN], userRole, res);
+
+  // Set up and connect to Fabric Gateway using the username and org in header
+  let username = req.body.username;
+  let org = req.body.org;
+  let args = req.body.args;
+  const networkObj = await network.connectToNetwork(username, org);
+
+  // get lastest orphan id from ledger
+  let lastId = await network.invoke(
+    networkObj,
+    true,
+    userRole + "Contract:GetLatestOrphanId",
+    JSON.stringify(args)
+  );
+  lastId = JSON.parse(lastId.toString());
+  lastId = parseInt(lastId.ID.slice(3)) + 1;
+
+  const userIdToAdd = "ORP" + lastId;
+  args.id = userIdToAdd;
+  
+  // invoke create orphan function in admin contract
+  try {
+    console.log("Registering user with userid " + args.id + " in ledger");
+    let result = await network.invoke(
+      networkObj,
+      false,
+      userRole + "Contract:CreateOrphan",
+      JSON.stringify(args)
+    );
+    console.log("Successfully registered user in ledger");
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
+  } catch (error) {
+    console.log("\nSome error occured in Contract:CreateOrphan\n");
+    console.log(error);
+    res
+      .status(400)
+      .send({ message: "Some error occurred while creating orphan" });
   }
 
-  // When password is not provided in the request while creating a patient record.
-  // if (!('password' in req.body) || req.body.password === null || req.body.password === '') {
-  //   req.body.password = Math.random().toString(36).slice(-8);
-  // }
+  // Enroll and register the user with the CA and adds the user to the wallet.
 
-  req.body.changedBy = req.headers.username;
-
-  // The request present in the body is converted into a single json string
-  const data = JSON.stringify(req.body);
-  const args = [data];
-  // Invoke the smart contract function
-  const createPatientRes = await network.invoke(networkObj, false, capitalize(userRole) + 'Contract:createPatient', args);
-  if (createPatientRes.error) {
-    res.status(400).send(response.error);
-  }
-
-  // Enrol and register the user with the CA and adds the user to the wallet.
-  const userData = JSON.stringify({hospitalId: (req.headers.username).slice(4, 5), userId: req.body.patientId});
-  const registerUserRes = await network.registerUser(userData);
-  if (registerUserRes.error) {
-    await network.invoke(networkObj, false, capitalize(userRole) + 'Contract:deletePatient', req.body.patientId);
+  try {
+    console.log("Registering user in wallet with userId " + args.id);
+    await network.registerUser(org, userIdToAdd);
+    res
+      .status(201)
+      .send(getMessage(false, "Successfully registered Patient.", userIdToAdd));
+  } catch (error) {
+    console.log("\nSome error occured in Contract:DeleteOrphan\n");
+    console.log(error);
+    console.log("Deleting user from ledger failed to store user in wallet");
+    args.userId = userIdToAdd;
+    await network.invoke(
+      networkObj,
+      false,
+      userRole + "Contract:DeleteOrphan",
+      JSON.stringify(args)
+    );
     res.send(registerUserRes.error);
   }
-
-  res.status(201).send(getMessage(false, 'Successfully registered Patient.', req.body.patientId, req.body.password));
 };
 
 // exports.createDoctor = async (req, res) => {

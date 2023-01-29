@@ -14,7 +14,7 @@ const constants = require("./config/constants.json");
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port || 8000;
 
-// const helper = require('./app/helper')
+const adminRoutes = require("./routes/admin-routes");
 const invoke = require("./app/invoke");
 // const qscc = require('./app/qscc')
 const query = require("./app/query");
@@ -245,59 +245,69 @@ app.get("/", (req, res) => {
 //     }
 // });
 
+function verifyToken(req, res, next) {
+  req.body.org = "Org1";
+  req.body.role = "Admin";
+  req.body.username = "adminorg1";
+  next();
+}
+
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName",
+  verifyToken,
   async function (req, res) {
-    try {
-      // logger.debug('==================== INVOKE ON CHAINCODE ==================');
-      var chaincodeName = req.params.chaincodeName;
-      var channelName = req.params.channelName;
-      var fcn = req.body.fcn;
-      var args = req.body.args;
+    // try {
+    // logger.debug('==================== INVOKE ON CHAINCODE ==================');
+    // var chaincodeName = req.params.chaincodeName;
+    // var channelName = req.params.channelName;
+    // var fcn = req.body.fcn;
+    // var args = req.body.args;
 
-      if (!chaincodeName) {
-        res.json(getErrorMessage("'chaincodeName'"));
-        return;
-      }
-      if (!channelName) {
-        res.json(getErrorMessage("'channelName'"));
-        return;
-      }
-      if (!fcn) {
-        res.json(getErrorMessage("'fcn'"));
-        return;
-      }
-      if (!args) {
-        res.json(getErrorMessage("'args'"));
-        return;
-      }
+    // if (!chaincodeName) {
+    //   res.json(getErrorMessage("'chaincodeName'"));
+    //   return;
+    // }
+    // if (!channelName) {
+    //   res.json(getErrorMessage("'channelName'"));
+    //   return;
+    // }
+    // if (!fcn) {
+    //   res.json(getErrorMessage("'fcn'"));
+    //   return;
+    // }
+    // if (!args) {
+    //   res.json(getErrorMessage("'args'"));
+    //   return;
+    // }
 
-      // let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.username, req.orgname, transient);
-      let message = await invoke.invokeTransaction(
-        channelName,
-        chaincodeName,
-        fcn,
-        args,
-        "adminorg1",
-        "Org1",
-        "Admin"
-      );
-      console.log(`message result is : ${message}`);
+    // let message = await invoke.invokeTransaction(
+    //   channelName,
+    //   chaincodeName,
+    //   fcn,
+    //   args
+    //   // "adminorg1",
+    //   // "Org1",
+    //   // "Admin"
+    // );
 
-      const response_payload = {
-        result: message,
-        error: null,
-        errorData: null,
-      };
-      res.send(response_payload);
-    } catch (error) {
-      const response_payload = {
-        result: null,
-        error: error.name,
-        errorData: error.message,
-      };
-      res.send(response_payload);
-    }
+    await adminRoutes.createOrphan(req, res);
+
+    //   console.log(`message result is : ${message}`);
+
+    //   const response_payload = {
+    //     result: message,
+    //     error: null,
+    //     errorData: null,
+    //   };
+    //   res.send(response_payload);
+    // } catch (error) {
+    //   const response_payload = {
+    //     result: null,
+    //     error: error.name,
+    //     errorData: error.message,
+    //   };
+    //   res.send(response_payload);
+    // }
   }
 );
 

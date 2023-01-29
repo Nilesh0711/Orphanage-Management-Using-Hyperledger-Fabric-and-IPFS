@@ -1,17 +1,25 @@
 const redis = require("redis");
 const util = require("util");
 
-exports.ROLE_ADMIN = "admin";
-exports.ROLE_DOCTOR = "doctor";
+exports.ROLE_ADMIN = 'Admin';
+exports.ROLE_DOCTOR = 'Doctor';
 // exports.ROLE_PATIENT = 'patient';
 
 // exports.CHANGE_TMP_PASSWORD = 'CHANGE_TMP_PASSWORD';
 
-exports.getMessage = function (isError, message, id = "", password = "") {
+// exports.getMessage = function (isError, message, id = "", password = "") {
+//   if (isError) {
+//     return { error: message };
+//   } else {
+//     return { success: message, id: id, password: password };
+//   }
+// };
+
+exports.getMessage = function (isError, message, id = "") {
   if (isError) {
     return { error: message };
   } else {
-    return { success: message, id: id, password: password };
+    return { success: message, id: id};
   }
 };
 
