@@ -15,7 +15,7 @@ const mspOrg1 = "Org1";
 const mspOrg2 = "Org2";
 const walletPath = path.join(__dirname, "wallet");
 
-exports.connectToNetwork = async function (id, org) {
+exports.connectToNetwork = async function (id, org, res) {
   const gateway = new Gateway();
   let ccp, walletPath, wallet;
   if (org == "Org1") {
@@ -41,7 +41,7 @@ exports.connectToNetwork = async function (id, org) {
         " does not exist in the wallet. Register " +
         id +
         " first";
-      return response;
+      return res.send(response);
     }
 
     await gateway.connect(ccp, {
@@ -72,7 +72,7 @@ exports.connectToNetwork = async function (id, org) {
   }
 };
 
-exports.invoke = async function (networkObj, isQuery, func, args) {
+exports.invoke = async function (networkObj, isQuery, func, args, res) {
   try {
     if (isQuery == true) {
       console.log("Quering contract");
@@ -99,7 +99,7 @@ exports.invoke = async function (networkObj, isQuery, func, args) {
     const response = {};
     response.error = error;
     console.error(`Failed to submit transaction: ${error}`);
-    return response;
+    return res.send(response);
   }
 };
 

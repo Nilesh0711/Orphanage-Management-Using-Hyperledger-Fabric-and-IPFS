@@ -25,6 +25,7 @@ app.use(
   })
 );
 
+// verify token
 function verifyToken(req, res, next) {
   req.body.org = "Org1";
   req.body.role = "Admin";
@@ -32,6 +33,10 @@ function verifyToken(req, res, next) {
   next();
 }
 
+
+// ****************************************************** ADMIN APIS ************************************************************************
+
+// create orphan api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-create-orphan",
   verifyToken,
@@ -40,6 +45,43 @@ app.post(
   }
 );
 
+// update orphan api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-update-orphan",
+  verifyToken,
+  async function (req, res) {
+    await adminRoutes.updateOrphan(req, res);
+  }
+);
+
+// grant doctor access orphan api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-grantaccess-orphan",
+  verifyToken,
+  async function (req, res) {
+    await adminRoutes.grantAccessToDoctor(req, res);
+  }
+);
+
+// revoke doctor access orphan api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
+  verifyToken,
+  async function (req, res) {
+    await adminRoutes.revokeAccessFromDoctor(req, res);
+  }
+);
+
+// delete orphan api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-delete-orphan",
+  verifyToken,
+  async function (req, res) {
+    await adminRoutes.deleteOrphan(req, res);
+  }
+);
+
+// read orphan api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-read-orphan",
   verifyToken,
@@ -48,6 +90,18 @@ app.get(
   }
 );
 
+// query all orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-orphan",
+  verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllOrphan(req, res);
+  }
+);
+
+
+
+// port listen
 app.listen(port, () => {
   console.log(`http://localhost:${port}`);
 });
