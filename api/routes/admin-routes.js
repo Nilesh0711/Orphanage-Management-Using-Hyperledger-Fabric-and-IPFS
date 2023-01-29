@@ -11,9 +11,6 @@ const network = require("../app/helper");
 
 exports.createOrphan = async (req, res) => {
   // User role from the request header is validated
-
-  // return res.send(JSON.parse(req.body))
-
   const userRole = req.body.role;
   await validateRole([ROLE_ADMIN], userRole, res);
 
@@ -35,7 +32,7 @@ exports.createOrphan = async (req, res) => {
 
   const userIdToAdd = "ORP" + lastId;
   args.id = userIdToAdd;
-  
+
   // invoke create orphan function in admin contract
   try {
     console.log("Registering user with userid " + args.id + " in ledger");
@@ -57,13 +54,12 @@ exports.createOrphan = async (req, res) => {
   }
 
   // Enroll and register the user with the CA and adds the user to the wallet.
-
   try {
     console.log("Registering user in wallet with userId " + args.id);
     await network.registerUser(org, userIdToAdd);
     res
       .status(201)
-      .send(getMessage(false, "Successfully registered Patient.", userIdToAdd));
+      .send(getMessage(false, "Successfully registered Orphan.", userIdToAdd));
   } catch (error) {
     console.log("\nSome error occured in Contract:DeleteOrphan\n");
     console.log(error);
@@ -75,6 +71,38 @@ exports.createOrphan = async (req, res) => {
       userRole + "Contract:DeleteOrphan",
       JSON.stringify(args)
     );
+    res.send(registerUserRes.error);
+  }
+};
+
+exports.readOrphan = async (req, res) => {
+  // User role from the request header is validated
+  const userRole = req.body.role;
+  await validateRole([ROLE_ADMIN], userRole, res);
+
+  // Set up and connect to Fabric Gateway using the username and org in header
+  let username = req.body.username;
+  let org = req.body.org;
+  let args = req.body.args;
+  const networkObj = await network.connectToNetwork(username, org);
+
+  // get lastest orphan id from ledger
+  try {
+    let result = await network.invoke(
+      networkObj,
+      true,
+      userRole + "Contract:ReadOrphan",
+      JSON.stringify(args)
+    );
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
+    res.status(201).send({
+      result: JSON.parse(result.toString()),
+    });
+    return;
+  } catch (error) {
+    console.log("Some error occurred in admin read orphan");
+    console.log(error);
     res.send(registerUserRes.error);
   }
 };
