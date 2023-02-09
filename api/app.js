@@ -15,6 +15,8 @@ const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port || 8000;
 
 const adminRoutes = require("./routes/admin-routes");
+const doctorRoutes = require("./routes/doctor-routes");
+const authRoutes = require("./routes/auth-routes");
 
 app.options("*", cors());
 app.use(cors());
@@ -27,14 +29,19 @@ app.use(
 
 // verify token
 function verifyToken(req, res, next) {
-  req.body.org = "Org1";
+  req.body.org = "Org2";
   req.body.role = "Admin";
-  req.body.username = "adminorg1";
+  req.body.username = "adminorg2";
   next();
 }
 
+// ******** AUTH API ********
 
-// ****************************************************** ADMIN APIS ************************************************************************
+app.post("/login", async function (req, res) {
+  await authRoutes.loginUser(req, res);
+});
+
+// ******** ADMIN API ********
 
 // create orphan api
 app.post(
@@ -109,7 +116,6 @@ app.get(
 );
 
 // get all doctor api
-// query all orphan api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-doctor",
   verifyToken,
@@ -118,19 +124,13 @@ app.get(
   }
 );
 
-
-
-// ****************************************************** DOCTOR APIS ************************************************************************
+// ******** DOCTOR API ********
 
 // read assigned orphan api
 
 // read assigned orphan history medical data api
 
 // update orphan medical record api
-
-
-
-
 
 // port listen
 app.listen(port, () => {
