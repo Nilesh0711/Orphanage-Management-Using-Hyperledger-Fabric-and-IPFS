@@ -29,7 +29,6 @@ app.use(
 
 // ******** AUTH API ********
  
-
 app.post("/login", async function (req, res) {
   await authRoutes.loginUser(req, res);
 });
