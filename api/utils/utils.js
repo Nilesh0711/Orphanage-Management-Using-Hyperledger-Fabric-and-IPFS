@@ -1,8 +1,8 @@
 const redis = require("redis");
 const util = require("util");
 
-exports.ROLE_ADMIN = 'Admin';
-exports.ROLE_DOCTOR = 'Doctor';
+exports.ROLE_ADMIN = "Admin";
+exports.ROLE_DOCTOR = "Doctor";
 // exports.ROLE_PATIENT = 'patient';
 
 // exports.CHANGE_TMP_PASSWORD = 'CHANGE_TMP_PASSWORD';
@@ -19,7 +19,7 @@ exports.getMessage = function (isError, message, id = "") {
   if (isError) {
     return { error: message };
   } else {
-    return { success: message, id: id};
+    return { success: message, id: id };
   }
 };
 
@@ -43,7 +43,7 @@ exports.capitalize = function (s) {
 
 exports.createRedisForDoctor = async function (org, i) {
   // TODO: Handle using config file
-  let redisPassword, port, doctorPassword;
+  let redisPassword, port, doctorPassword, redisClient;
   if (org == "Org1") {
     port = "6379";
     redisPassword = "adminorg1pw";
@@ -62,10 +62,10 @@ exports.createRedisForDoctor = async function (org, i) {
   });
   redisClient.connect();
   redisClient.on("connect", (err) => {
-    console.log(`doctor added to redis`);
+    console.log("Successfully connected to redis with port: " + port);
   });
   try {
-    await redisClient.set(org + "-" +"DOC" + i, doctorPassword);
+    await redisClient.set(org + "-" + "DOC" + i, doctorPassword);
     redisClient.quit();
     return true;
   } catch (error) {
@@ -74,4 +74,33 @@ exports.createRedisForDoctor = async function (org, i) {
   // NOTE: Node Redis currently doesn't natively support promises
   // Util node package to promisify the get function of the client redis
   throw new Error(`Failed to enroll doctor ${id} some error occured`);
+};
+
+exports.createRedisClient = async function (org) {
+  // TODO: Handle using config file
+  let redisPassword, port, redisClient;
+  if (org == "Org1") {
+    port = "6379";
+    redisPassword = "adminorg1pw";
+  } else if (org == "Org2") {
+    port = "6380";
+    redisPassword = "adminorg2pw";
+  }
+
+  redisClient = redis.createClient({
+    socket: {
+      host: "localhost",
+      port: port,
+    },
+    password: redisPassword,
+  });
+  redisClient.connect();
+  redisClient.on("connect", (err) => {
+    console.log("Successfully connected to redis with port: " + port);
+  });
+
+  // NOTE: Node Redis currently doesn't natively support promises
+  // Util node package to promisify the get function of the client redis
+  // redisClient.get = util.promisify(redisClient.get);
+  return redisClient;
 };

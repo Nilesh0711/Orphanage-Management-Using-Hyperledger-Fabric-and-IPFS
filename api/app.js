@@ -15,6 +15,8 @@ const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port || 8000;
 
 const adminRoutes = require("./routes/admin-routes");
+const doctorRoutes = require("./routes/doctor-routes");
+const authRoutes = require("./routes/auth-routes");
 
 app.options("*", cors());
 app.use(cors());
@@ -25,21 +27,36 @@ app.use(
   })
 );
 
-// verify token
-function verifyToken(req, res, next) {
-  req.body.org = "Org1";
-  req.body.role = "Admin";
-  req.body.username = "adminorg1";
-  next();
-}
+// ******** AUTH API ********
+ 
+app.post("/login", async function (req, res) {
+  await authRoutes.loginUser(req, res);
+});
+
+const verifyToken = (req, res, next) => {
+  const bearerHeader = req.headers["authorization"];
+  if (typeof bearerHeader != "undefined") {
+    const bearerToken = bearerHeader.split(" ")[1];
+    req.token = bearerToken;
+    jwt.verify(bearerToken, "secretKey", (err, token) => {
+      if (err) res.sendStatus(403);
+      else {
+        console.log(token);
+        next();
+      }
+    });
+  } else {
+    res.sendStatus(403);
+  }
+};
 
 
-// ****************************************************** ADMIN APIS ************************************************************************
+// ******** ADMIN API ********
 
 // create orphan api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-create-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.createOrphan(req, res);
   }
@@ -48,7 +65,7 @@ app.post(
 // update orphan api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-update-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.updateOrphan(req, res);
   }
@@ -57,7 +74,7 @@ app.post(
 // grant doctor access orphan api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-grantaccess-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.grantAccessToDoctor(req, res);
   }
@@ -66,7 +83,7 @@ app.post(
 // revoke doctor access orphan api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.revokeAccessFromDoctor(req, res);
   }
@@ -75,7 +92,7 @@ app.post(
 // delete orphan api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-delete-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.deleteOrphan(req, res);
   }
@@ -84,7 +101,7 @@ app.post(
 // create doctor api
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-create-doctor",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.createDoctor(req, res);
   }
@@ -93,7 +110,7 @@ app.post(
 // read orphan api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-read-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.readOrphan(req, res);
   }
@@ -102,35 +119,28 @@ app.get(
 // query all orphan api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-orphan",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.queryAllOrphan(req, res);
   }
 );
 
 // get all doctor api
-// query all orphan api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-doctor",
-  verifyToken,
+  authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.getDoctorsByOrgId(req, res);
   }
 );
 
-
-
-// ****************************************************** DOCTOR APIS ************************************************************************
+// ******** DOCTOR API ********
 
 // read assigned orphan api
 
 // read assigned orphan history medical data api
 
 // update orphan medical record api
-
-
-
-
 
 // port listen
 app.listen(port, () => {

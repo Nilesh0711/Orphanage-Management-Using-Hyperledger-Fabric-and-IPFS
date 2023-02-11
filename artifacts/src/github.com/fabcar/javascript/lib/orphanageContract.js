@@ -16,8 +16,8 @@ class OrphanageContract extends Contract {
     // console.log('\n============= START : Initialize Ledger ===========\n');
     for (const orphan of initOrphange) {
       // orphan.docType = "orphan";
-      await ctx.stub.putState(orphan.ID, Buffer.from(JSON.stringify(orphan)));
-      console.info(`Orphan ${orphan.ID} initialized`);
+      await ctx.stub.putState(orphan.id, Buffer.from(JSON.stringify(orphan)));
+      console.info(`Orphan ${orphan.id} initialized`);
     }
     // console.log('\n============= END : Initialize Ledger ===========\n');
   }
