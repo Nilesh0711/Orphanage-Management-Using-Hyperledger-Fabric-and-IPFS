@@ -5,7 +5,6 @@
  */
 
 "use strict";
-const { getgid } = require("process");
 const OrphanageContract = require("./orphanageContract.js");
 const Orphan = require("./OrphanModel");
 
@@ -48,7 +47,7 @@ class AdminContract extends OrphanageContract {
   //Read orphan details based on orphanId
   async ReadOrphan(ctx, args) {
     let asset = await OrphanageContract.prototype.ReadOrphan(ctx, args);
-    asset = JSON.parse(asset);
+    asset = JSON.parse(asset.toString());
     asset = {
       ID: asset.ID,
       firstName: asset.firstName,
@@ -62,20 +61,9 @@ class AdminContract extends OrphanageContract {
     return asset;
   }
 
-  // async ReadOrphan(ctx, args) {
-  //   args = JSON.parse(args);
-  //   let id = args.id;
-  //   let userId = args.userId;
-  //   const dataJSON = await ctx.stub.getState(userId); // get the asset from chaincode state
-  //   if (!dataJSON || dataJSON.length === 0) {
-  //     throw new Error(`The orphan ${id} does not exist`);
-  //   }
-  //   return dataJSON.toString();
-  // }
-
   // UpdateAsset updates an existing asset in the world state with provided parameters.
   async UpdateOrphan(ctx, args) {
-    args = JSON.parse(args);
+    args = JSON.parse(args.toString());
     let id = args.id;
     let firstName = args.firstName;
     let lastName = args.lastName;
@@ -83,7 +71,8 @@ class AdminContract extends OrphanageContract {
     let gender = args.gender;
     let org = args.org;
     let background = args.background;
-    const exists = await this.OrphanExists(ctx, JSON.stringify(args));
+    let data = { userId: id };
+    const exists = await this.OrphanExists(ctx, JSON.stringify(data));
     if (!exists) {
       throw new Error(`The asset ${id} does not exist`);
     }
@@ -98,51 +87,51 @@ class AdminContract extends OrphanageContract {
       Org: org,
       Background: background,
     };
-    return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedOrphan)));
+    ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedOrphan)));
+    return JSON.stringify(updatedOrphan);
   }
 
+  // GrantAccessToDoctor an existing asset in the world state with provided parameters.
   async GrantAccessToDoctor(ctx, args) {
-    args = JSON.parse(args);
+    args = JSON.parse(args.toString());
     let userId = args.userId;
     let doctorId = args.doctorId;
     let data = {
       userId: userId,
     };
-
-    const orphan = await OrphanageContract.prototype.ReadOrphan(
+    let orphan = await OrphanageContract.prototype.ReadOrphan(
       ctx,
       JSON.stringify(data)
     );
-    orphan = JSON.parse(orphan);
-
+    orphan = JSON.parse(orphan.toString());
     if (!orphan.PermissionGranted.includes(doctorId)) {
       orphan.PermissionGranted.push(doctorId);
     }
 
-    return ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+    await ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+    return JSON.stringify(orphan);
   }
 
+  // RevokeAccessFromDoctor an existing asset in the world state with provided parameters.
   async RevokeAccessFromDoctor(ctx, args) {
-    args = JSON.parse(args);
+    args = JSON.parse(args.toString());
     let userId = args.userId;
     let doctorId = args.doctorId;
     let data = {
       userId: userId,
     };
-
-    const orphan = await OrphanageContract.prototype.ReadOrphan(
+    let orphan = await OrphanageContract.prototype.ReadOrphan(
       ctx,
       JSON.stringify(data)
     );
-    orphan = JSON.parse(orphan);
-
-    if (!orphan.PermissionGranted.includes(doctorId)) {
+    orphan = JSON.parse(orphan.toString());
+    if (orphan.PermissionGranted.includes(doctorId)) {
       orphan.PermissionGranted = orphan.PermissionGranted.filter(
         (doctor) => doctor != doctorId
       );
     }
-
-    return ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+    await ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+    return JSON.stringify(orphan);
   }
 
   //Delete orphan from the ledger based on orphanId
@@ -210,5 +199,6 @@ class AdminContract extends OrphanageContract {
 
     return asset;
   };
+
 }
 module.exports = AdminContract;

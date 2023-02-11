@@ -14,13 +14,12 @@ async function initLedger() {
     let i = 0;
     for (i = 0; i < orphans.length; i++) {
       const attr = {
-        firstName: orphans[i].firstName,
-        lastName: orphans[i].lastName,
-        role: "client",
+        name: orphans[i].name,
+        role: "orphan",
       };
       let org;
-      orphans[i].Org == "Org1" ? (org = "Org1") : (org = "Org2");
-      await enrollRegisterUser(org, orphans[i].ID, JSON.stringify(attr));
+      orphans[i].org == "Org1" ? (org = "Org1") : (org = "Org2");
+      await enrollRegisterUser(org, orphans[i].id, JSON.stringify(attr));
     }
   } catch (err) {
     console.log(err);
@@ -76,15 +75,21 @@ async function enrollAndRegisterDoctors() {
     const doctors = JSON.parse(jsonString);
     for (let i = 0; i < doctors.length; i++) {
       const attr = {
+        org: doctors[i].org,
         firstName: doctors[i].firstName,
         lastName: doctors[i].lastName,
+        age: doctors[i].age,
         role: "doctor",
         speciality: doctors[i].speciality,
+        qualification: doctors[i].qualification,
+        experience: doctors[i].experience,
+        phoneNo: doctors[i].phoneNo,
+        personalAddress: doctors[i].personalAddress,
       };
-      await createRedisForDoctor(doctors[i].Org,i, doctors[i].firstName)
+      await createRedisForDoctor(doctors[i].org, i);
       await enrollRegisterUser(
-        doctors[i].Org,
-        doctors[i].Org + "-" + "DOC" + i,
+        doctors[i].org,
+        doctors[i].org + "-" + "DOC" + i,
         JSON.stringify(attr)
       );
     }
@@ -97,8 +102,8 @@ async function main() {
   await enrollAdminOrg1();
   await enrollAdminOrg2();
   await initLedger();
-  // await initRedis();
-  // await enrollAndRegisterDoctors();
+  await enrollAndRegisterDoctors();
+  await initRedis();
 }
 
 main();

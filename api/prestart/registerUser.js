@@ -48,7 +48,8 @@ exports.enrollRegisterUser = async function (org, userId, attributes) {
       mspOrg,
       userId,
       adminUserId,
-      affiliation
+      affiliation,
+      attributes
     );
     console.log(
       "msg: Successfully enrolled user " +

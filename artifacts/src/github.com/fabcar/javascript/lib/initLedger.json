@@ -1,42 +1,42 @@
 [
   {
-    "ID": "ORP1",
-    "firstName": "abc",
-    "lastName": "gupta",
-    "Age": 5,
-    "Gender": "male",
-    "Org":"Org1",
-    "Background": "No parents",
-    "PermissionGranted": ["adminorg1", "adminorg2"]
+    "id": "ORP1",
+    "name": "abc",
+    "gender": "male",
+    "dob": "07-11-2002",
+    "yearOfEnroll": "2002",
+    "isAdopted":"false",
+    "org":"Org1",
+    "background": "No parents"
   },
   {
-    "ID": "ORP2",
-    "firstName": "def",
-    "lastName": "gupta",
-    "Age": 6,
-    "Gender": "male",
-    "Org":"Org2",
-    "Background": "No parents",
-    "PermissionGranted":["adminorg1", "adminorg2"]
+    "id": "ORP2",
+    "name": "def",
+    "gender": "male",
+    "dob": "07-11-2002",
+    "yearOfEnroll": "2002",
+    "isAdopted":"false",
+    "org":"Org2",
+    "background": "No parents"
   },
   {
-    "ID": "ORP3",
-    "firstName": "ghi",
-    "lastName": "gupta",
-    "Age": 7,
-    "Gender": "male",
-    "Org":"Org1",
-    "Background": "No parents",
-    "PermissionGranted": ["adminorg1", "adminorg2"]
+    "id": "ORP3",
+    "name": "ghi",
+    "gender": "male",
+    "dob": "07-11-2002",
+    "yearOfEnroll": "2002",
+    "isAdopted":"false",
+    "org":"Org1",
+    "background": "No parents"
   },
   {
-    "ID": "ORP4",
-    "firstName": "jkl",
-    "lastName": "gupta",
-    "Age": 8,
-    "Gender": "male",
-    "Org":"Org2",
-    "Background": "No parents",
-    "PermissionGranted": ["adminorg1", "adminorg2"]
+    "id": "ORP4",
+    "name": "jkl",
+    "gender": "male",
+    "dob": "07-11-2002",
+    "yearOfEnroll": "2002",
+    "isAdopted":"false",
+    "org":"Org2",
+    "background": "No parents"
   }
 ]
