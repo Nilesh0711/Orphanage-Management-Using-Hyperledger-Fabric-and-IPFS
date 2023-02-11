@@ -6,6 +6,7 @@ const {
   validateRole,
 } = require("../utils/utils");
 const { createRedisClient } = require("../utils/utils");
+const jwt = require("jsonwebtoken");
 
 exports.loginUser = async (req, res) => {
   let { username, password, org, role } = req.body.args,
@@ -23,20 +24,37 @@ exports.loginUser = async (req, res) => {
 
   if (user) {
     // Generate an access token
-    return res.status(200).send("i am successfull");
-    const accessToken = generateAccessToken(username, role);
-    const refreshToken = jwt.sign(
-      { username: username, role: role },
-      refreshSecretToken
-    );
-    refreshTokens.push(refreshToken);
-    // Once the password is matched a session is created with the username and password
-    res.status(200);
-    res.json({
-      accessToken,
-      refreshToken,
+    const token = {
+      username: username,
+      org: org,
+      role: role,
+    };
+    jwt.sign({ token }, "secretKey", (err, token) => {
+      res.status(200).json({
+        token,
+      });
     });
   } else {
     res.status(400).send({ error: "Username or password incorrect!" });
+  }
+};
+
+exports.verifyToken = (req, res, next) => {
+  const bearerHeader = req.headers["authorization"];
+  if (typeof bearerHeader != "undefined") {
+    const bearerToken = bearerHeader.split(" ")[1];
+    req.token = bearerToken;
+    jwt.verify(bearerToken, "secretKey", (err, token) => {
+      if (err) res.sendStatus(403);
+      else {
+        req.body.username = token.token.username;
+        req.body.org = token.token.org;
+        req.body.role = token.token.role;
+        console.log(req.body);
+        next();
+      }
+    });
+  } else {
+    res.sendStatus(403);
   }
 };

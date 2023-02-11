@@ -99,11 +99,11 @@ async function enrollAndRegisterDoctors() {
 }
 
 async function main() {
-  // await enrollAdminOrg1();
-  // await enrollAdminOrg2();
-  // await initLedger();
-  // await enrollAndRegisterDoctors();
-  // await initRedis();
+  await enrollAdminOrg1();
+  await enrollAdminOrg2();
+  await initLedger();
+  await enrollAndRegisterDoctors();
+  await initRedis();
 }
 
 main();
