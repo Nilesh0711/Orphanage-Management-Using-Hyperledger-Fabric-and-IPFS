@@ -4,7 +4,7 @@ export PEER0_ORG1_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/or
 export PEER0_ORG2_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
 export FABRIC_CFG_PATH=${PWD}/artifacts/channel/config/
 
-export CHANNEL_NAME=mychannel
+export CHANNEL_NAME=oms
 
 # setGlobalsForOrderer(){
 #     export CORE_PEER_LOCALMSPID="OrdererMSP"

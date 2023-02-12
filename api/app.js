@@ -33,23 +33,6 @@ app.post("/login", async function (req, res) {
   await authRoutes.loginUser(req, res);
 });
 
-const verifyToken = (req, res, next) => {
-  const bearerHeader = req.headers["authorization"];
-  if (typeof bearerHeader != "undefined") {
-    const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearerToken;
-    jwt.verify(bearerToken, "secretKey", (err, token) => {
-      if (err) res.sendStatus(403);
-      else {
-        console.log(token);
-        next();
-      }
-    });
-  } else {
-    res.sendStatus(403);
-  }
-};
-
 
 // ******** ADMIN API ********
 

@@ -65,10 +65,18 @@ echo
 sleep 1
 echo
 echo "**************************************************************"
-echo "deploy chaincode"
+echo "deploy chaincode for orphanage"
 echo "**************************************************************"
 echo
-./deployChaincode.sh
+./deployOrphanChaincode.sh
+sleep 1
+
+echo
+echo "**************************************************************"
+echo "deploy chaincode for doctor"
+echo "**************************************************************"
+echo
+./deployDoctorChaincode.sh
 sleep 1
 
 echo
@@ -86,9 +94,15 @@ echo
 cd config
 ./generate-ccp.sh
 
-cd ../../
-
+cd ../
 sleep 1
+
+echo
+echo "**************************************************************"
+echo "starting server"
+echo "**************************************************************"
+echo
+npm start
 
 echo
 echo "**************************************************************"

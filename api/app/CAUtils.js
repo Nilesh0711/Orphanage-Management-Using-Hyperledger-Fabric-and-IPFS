@@ -57,7 +57,6 @@ exports.registerAndEnrollUser = async (
   userId,
   adminUserId,
   affiliation,
-  attributes
 ) => {
   try {
     // Check to see if we've already enrolled the user
@@ -93,12 +92,6 @@ exports.registerAndEnrollUser = async (
     // NOTE: Pubic key can be added into attrs
 
 
-    attributes = JSON.parse(attributes);
-    const firstName = attributes.firstName;
-    const lastName = attributes.lastName;
-    const role = attributes.role;
-    const speciality = (role === 'doctor') ? attributes.speciality : '';
-
 
     const secret = await caClient.register(
       {
@@ -108,52 +101,12 @@ exports.registerAndEnrollUser = async (
         // TODO: Check if other roles access can be granted in the ca config files of the organizations.
         // Changes to be made in fabric-ca-server-config.yaml ?? hf.Registrar.Roles and maps
         role: "client",
-        attrs: [{
-          name: 'firstName',
-          value: firstName,
-          ecert: true,
-        },
-        {
-          name: 'lastName',
-          value: lastName,
-          ecert: true,
-        },
-        {
-          name: 'role',
-          value: role,
-          ecert: true,
-        },
-        {
-          name: 'speciality',
-          value: speciality,
-          ecert: true,
-        }],
       },
       adminUser
     );
     const enrollment = await caClient.enroll({
       enrollmentID: userId,
-      enrollmentSecret: secret,
-      attrs: [{
-        name: 'firstName',
-        value: firstName,
-        ecert: true,
-      },
-      {
-        name: 'lastName',
-        value: lastName,
-        ecert: true,
-      },
-      {
-        name: 'role',
-        value: role,
-        ecert: true,
-      },
-      {
-        name: 'speciality',
-        value: speciality,
-        ecert: true,
-      }],
+      enrollmentSecret: secret
     });
     const x509Identity = {
       credentials: {

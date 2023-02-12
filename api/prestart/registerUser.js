@@ -9,7 +9,7 @@ let adminUserId;
 let caClient;
 let affiliation
 let wallet;
-exports.enrollRegisterUser = async function (org, userId, attributes) {
+exports.enrollRegisterUser = async function (org, userId) {
   try {
     // setup the wallet to hold the credentials of the application user
     if (org == "Org1") {
@@ -49,7 +49,6 @@ exports.enrollRegisterUser = async function (org, userId, attributes) {
       userId,
       adminUserId,
       affiliation,
-      attributes
     );
     console.log(
       "msg: Successfully enrolled user " +

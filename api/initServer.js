@@ -8,18 +8,14 @@ const redis = require("redis");
 async function initLedger() {
   try {
     const jsonString = fs.readFileSync(
-      "../artifacts/src/github.com/fabcar/javascript/lib/initLedger.json"
+      "../artifacts/src/github.com/oms/orphanage/lib/initLedger.json"
     );
     const orphans = JSON.parse(jsonString);
     let i = 0;
     for (i = 0; i < orphans.length; i++) {
-      const attr = {
-        name: orphans[i].name,
-        role: "orphan",
-      };
       let org;
       orphans[i].org == "Org1" ? (org = "Org1") : (org = "Org2");
-      await enrollRegisterUser(org, orphans[i].id, JSON.stringify(attr));
+      await enrollRegisterUser(org, orphans[i].id);
     }
   } catch (err) {
     console.log(err);
@@ -71,26 +67,15 @@ async function initRedis() {
 
 async function enrollAndRegisterDoctors() {
   try {
-    const jsonString = fs.readFileSync("./prestart/initDoctors.json");
+    const jsonString = fs.readFileSync(
+      "../artifacts/src/github.com/oms/doctor/lib/initDoctors.json"
+    );
     const doctors = JSON.parse(jsonString);
     for (let i = 0; i < doctors.length; i++) {
-      const attr = {
-        org: doctors[i].org,
-        firstName: doctors[i].firstName,
-        lastName: doctors[i].lastName,
-        age: doctors[i].age,
-        role: "doctor",
-        speciality: doctors[i].speciality,
-        qualification: doctors[i].qualification,
-        experience: doctors[i].experience,
-        phoneNo: doctors[i].phoneNo,
-        personalAddress: doctors[i].personalAddress,
-      };
-      await createRedisForDoctor(doctors[i].org, i);
+      await createRedisForDoctor(doctors[i].org, doctors[i].id);
       await enrollRegisterUser(
         doctors[i].org,
-        doctors[i].org + "-" + "DOC" + i,
-        JSON.stringify(attr)
+        doctors[i].id
       );
     }
   } catch (error) {

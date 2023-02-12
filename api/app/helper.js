@@ -9,13 +9,13 @@ const {
   buildAffliation,
 } = require("./AppUtils.js");
 
-const channelName = "mychannel";
-const chaincodeName = "fabcar";
-const mspOrg1 = "Org1";
-const mspOrg2 = "Org2";
-const walletPath = path.join(__dirname, "wallet");
-
-exports.connectToNetwork = async function (id, org, res) {
+exports.connectToNetwork = async function (
+  id,
+  org,
+  channelName,
+  chaincodeName,
+  res
+) {
   const gateway = new Gateway();
   let ccp, walletPath, wallet;
   if (org == "Org1") {
@@ -83,36 +83,24 @@ exports.invoke = async function (networkObj, isQuery, func, args, res) {
         args
       );
       await networkObj.gateway.disconnect();
+      console.log(response);
       return response;
     } else {
       console.log("Invoking contract");
       console.log("arguments for invoking contract");
       console.log(JSON.parse(args));
-      const response = await networkObj.contract.submitTransaction(
-        func,
-        args
-      );
+      const response = await networkObj.contract.submitTransaction(func, args);
       await networkObj.gateway.disconnect();
+      console.log(response);
       return response;
     }
   } catch (error) {
-    const response = {};
-    response.error = error;
     console.error(`Failed to submit transaction: ${error}`);
-    return res.send(response);
+    return res.status(500).send({ error });
   }
 };
 
-exports.registerUser = async function (org_name, userIdToAdd, attributes) {
-  // const attrs = JSON.parse(attributes);
-  // const hospitalId = parseInt(attrs.hospitalId);
-  // const userId = attrs.userId;
-  // if (!userId || !hospitalId) {
-  //   const response = {};
-  //   response.error =
-  //     "Error! You need to fill all fields before you can register!";
-  //   return response;
-  // }
+exports.registerUser = async function (org_name, userIdToAdd) {
   try {
     let ccp, walletPath, caClient, adminUserId, wallet, affiliation;
     if (org_name == "Org1") {
@@ -136,7 +124,6 @@ exports.registerUser = async function (org_name, userIdToAdd, attributes) {
       userIdToAdd,
       adminUserId,
       affiliation,
-      attributes
     );
     console.log(`Successfully registered user: + ${userIdToAdd}`);
     const response = "Successfully registered user: " + userIdToAdd;
@@ -160,7 +147,6 @@ exports.getAllDoctorsByOrgId = async function (networkObj, org) {
     if (org == "Org1") {
       const ccp = buildCCPOrg1();
       caClient = buildCAClient(FabricCAServices, ccp, "ca.org1.example.com");
-
     } else if (org == "Org2") {
       const ccp = buildCCPOrg2();
       caClient = buildCAClient(FabricCAServices, ccp, "ca.org2.example.com");

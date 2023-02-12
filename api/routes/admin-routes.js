@@ -10,24 +10,32 @@ const network = require("../app/helper");
 exports.createOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org, args } = req.body;
+  let { chaincodeName, channelName } = req.params;
   await validateRole([ROLE_ADMIN], role, res);
 
   // Set up and connect to Fabric Gateway using the username and org in header
-  const networkObj = await network.connectToNetwork(username, org, res);
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
 
   // get lastest orphan id from ledger
   let lastId = await network.invoke(
     networkObj,
     true,
-    role + "Contract:GetLatestOrphanId",
+    role + "Contract:getLatestOrphanId",
     JSON.stringify(args),
     res
   );
   lastId = JSON.parse(lastId.toString());
-  lastId = parseInt(lastId.ID.slice(3)) + 1;
+  lastId = parseInt(lastId.id.slice(3)) + 1;
 
   const userIdToAdd = "ORP" + lastId;
   args.id = userIdToAdd;
+  console.log(userIdToAdd);
 
   // invoke create orphan function in admin contract
   try {
@@ -35,7 +43,7 @@ exports.createOrphan = async (req, res) => {
     let result = await network.invoke(
       networkObj,
       false,
-      role + "Contract:CreateOrphan",
+      role + "Contract:createOrphan",
       JSON.stringify(args),
       res
     );
@@ -52,15 +60,10 @@ exports.createOrphan = async (req, res) => {
 
   // Enroll and register the user with the CA and adds the user to the wallet.
   try {
-    let attributes = {
-      firstName: args.firstName,
-      lastName: args.lastName,
-      role: "orphan"
-    };
     console.log("Registering user in wallet with userId " + args.id);
-    await network.registerUser(org, userIdToAdd, JSON.stringify(attributes));
+    await network.registerUser(org, userIdToAdd);
     res
-      .status(201)
+      .status(200)
       .send(getMessage(false, "Successfully registered Orphan.", userIdToAdd));
   } catch (error) {
     console.log("\nSome error occured in Contract:DeleteOrphan\n");
@@ -70,7 +73,7 @@ exports.createOrphan = async (req, res) => {
     await network.invoke(
       networkObj,
       false,
-      role + "Contract:DeleteOrphan",
+      role + "Contract:deleteOrphan",
       JSON.stringify(args),
       res
     );
@@ -81,10 +84,17 @@ exports.createOrphan = async (req, res) => {
 exports.updateOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org, args } = req.body;
+  let { chaincodeName, channelName } = req.params;
   await validateRole([ROLE_ADMIN], role, res);
 
   // Set up and connect to Fabric Gateway using the username and org in header
-  const networkObj = await network.connectToNetwork(username, org, res);
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
 
   let userIdToAdd = req.body.userId;
   args.id = userIdToAdd;
@@ -95,7 +105,7 @@ exports.updateOrphan = async (req, res) => {
     let result = await network.invoke(
       networkObj,
       false,
-      role + "Contract:UpdateOrphan",
+      role + "Contract:updateOrphan",
       JSON.stringify(args),
       res
     );
@@ -103,7 +113,7 @@ exports.updateOrphan = async (req, res) => {
     console.log("Result is : ");
     console.log(JSON.parse(result.toString()));
     res
-      .status(201)
+      .status(200)
       .send(getMessage(false, "Successfully Updated Orphan.", userIdToAdd));
   } catch (error) {
     console.log("\nSome error occured in Contract:UpdateOrphan\n");
@@ -117,25 +127,35 @@ exports.updateOrphan = async (req, res) => {
 exports.readOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org, args } = req.body;
+  let { chaincodeName, channelName } = req.params;
 
   await validateRole([ROLE_ADMIN], role, res);
 
   // Set up and connect to Fabric Gateway using the username and org in header
-  const networkObj = await network.connectToNetwork(username, org, res);
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
 
   try {
     let result = await network.invoke(
       networkObj,
       true,
-      role + "Contract:ReadOrphan",
+      role + "Contract:readOrphan",
       JSON.stringify(args),
       res
     );
-    console.log("Result is : ");
-    console.log(JSON.parse(result.toString()));
-    res.status(201).send({
-      result: JSON.parse(result.toString()),
-    });
+    if (result.statusCode != 500) {
+      console.log("Result is : ");
+      console.log(JSON.parse(result.toString()));
+      res.status(200).send({
+        result: JSON.parse(result.toString()),
+      });
+    }
+
     return;
   } catch (error) {
     console.log("Some error occurred in admin read orphan");
@@ -147,24 +167,31 @@ exports.readOrphan = async (req, res) => {
 exports.queryAllOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org } = req.body;
+  let { chaincodeName, channelName } = req.params;
   await validateRole([ROLE_ADMIN], role, res);
 
   // Set up and connect to Fabric Gateway using the username and org in header
   // let args = req.body.args;
-  const networkObj = await network.connectToNetwork(username, org, res);
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
 
   // get lastest orphan id from ledger
   try {
     let result = await network.invoke(
       networkObj,
       true,
-      role + "Contract:QueryAllOrphan",
+      role + "Contract:queryAllOrphan",
       JSON.stringify({}),
       res
     );
     console.log("Result is : ");
     console.log(JSON.parse(result.toString()));
-    res.status(201).send({
+    res.status(200).send({
       result: JSON.parse(result.toString()),
     });
     return;
@@ -175,136 +202,106 @@ exports.queryAllOrphan = async (req, res) => {
   }
 };
 
-exports.deleteOrphan = async (req, res) => {
-  // User role from the request header is validated
-  let { role, username, org, args } = req.body;
+// exports.grantAccessToDoctor = async (req, res) => {
+//   // User role from the request header is validated
+//   let { role, username, org, args } = req.body;
 
-  await validateRole([ROLE_ADMIN], role, res);
+//   await validateRole([ROLE_ADMIN], role, res);
 
-  // Set up and connect to Fabric Gateway using the username and org in header
-  const networkObj = await network.connectToNetwork(username, org, res);
+//   // Set up and connect to Fabric Gateway using the username and org in header
+//   const networkObj = await network.connectToNetwork(username, org, res);
 
-  try {
-    let result = await network.invoke(
-      networkObj,
-      false,
-      role + "Contract:DeleteOrphan",
-      JSON.stringify(args),
-      res
-    );
-    console.log("Result is : ");
-    console.log(JSON.parse(result.toString()));
-    res.status(201).send({
-      result: JSON.parse(result.toString()),
-    });
-    return;
-  } catch (error) {
-    console.log("Some error occurred in admin read orphan");
-    console.log(error);
-    res.send(registerUserRes.error);
-  }
-};
+//   try {
+//     let result = await network.invoke(
+//       networkObj,
+//       false,
+//       role + "Contract:grantAccessToDoctor",
+//       JSON.stringify(args),
+//       res
+//     );
+//     console.log("Result is : ");
+//     console.log(JSON.parse(result.toString()));
+//     res.status(200).send({
+//       result: JSON.parse(result.toString()),
+//     });
+//     return;
+//   } catch (error) {
+//     console.log("Some error occurred in admin grant doctor access orphan");
+//     console.log(error);
+//     res.send(error);
+//   }
+// };
 
-exports.grantAccessToDoctor = async (req, res) => {
-  // User role from the request header is validated
-  let { role, username, org, args } = req.body;
+// exports.revokeAccessFromDoctor = async (req, res) => {
+//   // User role from the request header is validated
+//   let { role, username, org, args } = req.body;
 
-  await validateRole([ROLE_ADMIN], role, res);
+//   await validateRole([ROLE_ADMIN], role, res);
 
-  // Set up and connect to Fabric Gateway using the username and org in header
-  const networkObj = await network.connectToNetwork(username, org, res);
+//   // Set up and connect to Fabric Gateway using the username and org in header
+//   const networkObj = await network.connectToNetwork(username, org, res);
 
-  try {
-    let result = await network.invoke(
-      networkObj,
-      false,
-      role + "Contract:GrantAccessToDoctor",
-      JSON.stringify(args),
-      res
-    );
-    console.log("Result is : ");
-    console.log(JSON.parse(result.toString()));
-    res.status(201).send({
-      result: JSON.parse(result.toString()),
-    });
-    return;
-  } catch (error) {
-    console.log("Some error occurred in admin grant doctor access orphan");
-    console.log(error);
-    res.send(error);
-  }
-};
+//   try {
+//     let result = await network.invoke(
+//       networkObj,
+//       false,
+//       role + "Contract:revokeAccessFromDoctor",
+//       JSON.stringify(args),
+//       res
+//     );
+//     console.log("Result is : ");
+//     console.log(JSON.parse(result.toString()));
+//     res.status(200).send({
+//       result: JSON.parse(result.toString()),
+//     });
+//     return;
+//   } catch (error) {
+//     console.log("Some error occurred in admin revoke doctor access orphan");
+//     console.log(error);
+//     res.send(error);
+//   }
+// };
 
-exports.revokeAccessFromDoctor = async (req, res) => {
-  // User role from the request header is validated
-  let { role, username, org, args } = req.body;
+// exports.createDoctor = async (req, res) => {
+//   // User role from the request header is validated
+//   let { role, username, org, args } = req.body;
+//   let doctorId = org + "-" + "DOC" + args.doctorNumber;
 
-  await validateRole([ROLE_ADMIN], role, res);
+//   await validateRole([ROLE_ADMIN], role, res);
 
-  // Set up and connect to Fabric Gateway using the username and org in header
-  const networkObj = await network.connectToNetwork(username, org, res);
+//   // Create a redis client and add the doctor to redis
+//   // await createRedisForDoctor(args.org, args.doctorNumber);
 
-  try {
-    let result = await network.invoke(
-      networkObj,
-      false,
-      role + "Contract:RevokeAccessFromDoctor",
-      JSON.stringify(args),
-      res
-    );
-    console.log("Result is : ");
-    console.log(JSON.parse(result.toString()));
-    res.status(201).send({
-      result: JSON.parse(result.toString()),
-    });
-    return;
-  } catch (error) {
-    console.log("Some error occurred in admin revoke doctor access orphan");
-    console.log(error);
-    res.send(error);
-  }
-};
+//   // Enroll and register the user with the CA and adds the user to the wallet.
+//   let attributes = {
+//     firstName: args.firstName,
+//     lastName: args.lastName,
+//     speciality:args.speciality,
+//     role: "doctor"
+//   };
+//   const response = await network.registerUser(org, doctorId, JSON.stringify(attributes));
 
-exports.createDoctor = async (req, res) => {
-  // User role from the request header is validated
-  let { role, username, org, args } = req.body;
-  let doctorId = org + "-" + "DOC" + args.doctorNumber;
+//   // Delete the user from redis if the failed to register user in wallet
+//   // if (response.error) {
+//   //   (await redisClient).DEL(doctorId);
+//   //   res.status(400).send(response.error);
+//   // }
 
-  await validateRole([ROLE_ADMIN], role, res);
+//   console.log("Doctor successfully registered");
+//   res.status(201).send({
+//     username: doctorId,
+//     message: "Doctor successfully registered",
+//   });
+// };
 
-  // Create a redis client and add the doctor to redis
-  // await createRedisForDoctor(args.org, args.doctorNumber);
+// exports.getDoctorsByOrgId = async (req, res) => {
 
-  // Enroll and register the user with the CA and adds the user to the wallet.
-  let attributes = {
-    firstName: args.firstName,
-    lastName: args.lastName,
-    speciality:args.speciality,
-    role: "doctor"
-  };
-  const response = await network.registerUser(org, doctorId, JSON.stringify(attributes));
-
-  // Delete the user from redis if the failed to register user in wallet
-  // if (response.error) {
-  //   (await redisClient).DEL(doctorId);
-  //   res.status(400).send(response.error);
-  // }
-
-  console.log("Doctor successfully registered");
-  res.status(201).send({
-    username: doctorId,
-    message: "Doctor successfully registered",
-  });
-};
-
-exports.getDoctorsByOrgId = async (req, res) => {
-
-  let { role, username, org, args } = req.body;
-  await validateRole([ROLE_ADMIN], role, res);
-  // Set up and connect to Fabric Gateway
-  const networkObj = await network.connectToNetwork(username, org, res);
-  // Use the gateway and identity service to get all users enrolled by the CA
-  const response = await network.getAllDoctorsByOrgId(networkObj, org);
-  (response.error) ? res.status(500).send(response.error) : res.status(200).send(response);
-};
-
+//   let { role, username, org } = req.body;
+//   let doctorCount = 0;
+//   await validateRole([ROLE_ADMIN], role, res);
+//   // Set up and connect to Fabric Gateway
+//   const networkObj = await network.connectToNetwork(username, org, res);
+//   // Use the gateway and identity service to get all users enrolled by the CA
+//   const response = await network.getAllDoctorsByOrgId(networkObj, org);
+//   (response.error) ? res.status(500).send(response.error) : res.status(200).send(response);
+// };
