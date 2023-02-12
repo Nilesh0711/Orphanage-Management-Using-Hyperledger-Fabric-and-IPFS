@@ -22,8 +22,9 @@ exports.validateRole = async function (roles, reqRole, res) {
     !roles.includes(reqRole)
   ) {
     // user's role is not authorized
-    return res.sendStatus(401).json({ message: "Unauthorized Role" });
+    return false; 
   }
+  return true;
 };
 
 exports.capitalize = function (s) {

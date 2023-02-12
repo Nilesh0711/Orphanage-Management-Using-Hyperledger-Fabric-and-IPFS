@@ -23,8 +23,8 @@ class OrphanChaincode extends Contract {
   // ReadAsset returns the asset stored in the world state with given id.
   async readOrphan(ctx, args) {
     args = JSON.parse(args);
-    let userId = args.userId;
-    const dataJSON = await ctx.stub.getState(userId); // get the asset from chaincode state
+    let orphanId = args.orphanId;
+    const dataJSON = await ctx.stub.getState(orphanId); // get the asset from chaincode state
     if (!dataJSON || dataJSON.length === 0) {
       throw new Error(`The orphan ${id} does not exist`);
     }
@@ -34,8 +34,8 @@ class OrphanChaincode extends Contract {
   // AssetExists returns true when asset with given ID exists in world state.
   async orphanExists(ctx, args) {
     args = JSON.parse(args);
-    let userId = args.userId;
-    const dataJSON = await ctx.stub.getState(userId);
+    let orphanId = args.orphanId;
+    const dataJSON = await ctx.stub.getState(orphanId);
     return dataJSON && dataJSON.length > 0;
   }
 
@@ -65,13 +65,13 @@ class OrphanChaincode extends Contract {
     return JSON.stringify(allResults);
   }
 
-  async getHistoryForOrphan(ctx, args) {
-    args = JSON.parse(args);
-    let userId = args.userId;
-    let resultsIterator = await ctx.stub.getHistoryForKey(userId);
-    let results = await this.getAllResults(resultsIterator, true);
-    return JSON.stringify(results);
-  }
+  // async getHistoryForOrphan(ctx, args) {
+  //   args = JSON.parse(args);
+  //   let orphanId = args.orphanId;
+  //   let resultsIterator = await ctx.stub.getHistoryForKey(orphanId);
+  //   let results = await this.getAllResults(resultsIterator, true);
+  //   return JSON.stringify(results);
+  // }
 
   async getAllResults(iterator, isHistory) {
     let allResults = [];

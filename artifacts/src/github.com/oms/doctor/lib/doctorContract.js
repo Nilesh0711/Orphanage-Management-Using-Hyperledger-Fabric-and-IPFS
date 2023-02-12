@@ -6,33 +6,39 @@
 
 "use strict";
 
+const DoctorChaincode = require("./doctorChaincode");
+const OrphanageContract = require("../../orphanage/lib/orphanageChaincode");
 
-class DoctorContract {
+class DoctorContract extends DoctorChaincode {
   //Read Orphan details based on OrphanId
-  // async ReadOrphan(ctx, args) {
-  //   args = JSON.parse(args);
-  //   let id = args.id;
-  //   let userId = args.userId;
-  //   let asset = await OrphanageContract.prototype.ReadOrphan(
-  //     ctx,
-  //     JSON.stringify(args)
-  //   );
-  //   asset = JSON.parse(asset);
-  //   const permissionArray = asset.PermissionGranted;
-  //   if (!permissionArray.includes(id)) {
-  //     throw new Error(
-  //       `The doctor ${id} does not have permission to patient ${userId}`
-  //     );
-  //   }
-  //   asset = {
-  //     ID: asset.ID,
-  //     firstName: asset.firstName,
-  //     lastName: asset.lastName,
-  //     //   Age: asset.Age,
-  //     //   Gender: asset.Gender,
-  //   };
-  //   return asset;
-  // }
+  async ReadOrphan(ctx, args) {
+    args = JSON.parse(args);
+    let doctorId = args.doctorId;
+    let orphanId = args.orphanId;
+    let asset = await OrphanageContract.prototype.ReadOrphan(
+      ctx,
+      JSON.stringify(args)
+    );
+    asset = JSON.parse(asset);
+    const permissionArray = asset.permissionGranted;
+    if (!permissionArray.includes(doctorId)) {
+      throw new Error(
+        `The doctor ${doctorId} does not have permission to patient ${orphanId}`
+      );
+    }
+    asset = {
+      id: asset.id,
+      name: asset.name,
+      gender: asset.gender,
+      org: asset.org,
+      disfigurements: asset.disfigurements,
+      treatment: asset.treatment,
+      diagnosis: asset.diagnosis,
+      allergies: asset.allergies,
+      changedBy: asset.changedBy,
+    };
+    return asset;
+  }
 
   //This function is to update Orphan medical details. This function should be called by only doctor.
   // async updateOrphanMedicalDetails(ctx, args) {

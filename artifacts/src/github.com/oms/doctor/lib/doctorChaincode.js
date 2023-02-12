@@ -45,7 +45,6 @@ class DoctorChaincode extends Contract {
     return JSON.stringify(allResults);
   }
 
-
 }
 
 module.exports = DoctorChaincode;

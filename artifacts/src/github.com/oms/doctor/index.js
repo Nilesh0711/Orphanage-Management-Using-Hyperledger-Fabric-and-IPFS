@@ -7,12 +7,12 @@
 "use strict";
 
 const DoctorChaincode = require("./lib/doctorChaincode");
-// const DoctorContract = require("./lib/doctorContract");
+const DoctorContract = require("./lib/doctorContract");
 
-// module.exports.DoctorContract = DoctorContract;
+module.exports.DoctorContract = DoctorContract;
 module.exports.DoctorChaincode = DoctorChaincode;
 
 module.exports.contracts = [
-  // DoctorContract,
+  DoctorContract,
   DoctorChaincode,
 ];

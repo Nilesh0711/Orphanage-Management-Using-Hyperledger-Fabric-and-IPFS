@@ -19,15 +19,15 @@ class AdminContract extends OrphanChaincode {
   //Create orphan in the ledger
   async createOrphan(ctx, args) {
     args = JSON.parse(args.toString());
-    let { id, name, gender, dob, yearOfEnroll, isAdopted, org, background } =
+    let { orphanId, name, gender, dob, yearOfEnroll, isAdopted, org, background } =
       args;
-    let data = { userId: id };
+    let data = { orphanId: orphanId };
     const exists = await this.orphanExists(ctx, JSON.stringify(data));
     if (exists) {
-      return `The user ${id} already exist`;
+      return `The user ${orphanId} already exist`;
     }
     let orphan = new Orphan(
-      id,
+      orphanId,
       name,
       gender,
       dob,
@@ -36,7 +36,7 @@ class AdminContract extends OrphanChaincode {
       org,
       background
     );
-    ctx.stub.putState(id, Buffer.from(JSON.stringify(orphan)));
+    ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(orphan)));
     return JSON.stringify(orphan);
   }
 
@@ -60,17 +60,17 @@ class AdminContract extends OrphanChaincode {
   // UpdateAsset updates an existing asset in the world state with provided parameters.
   async updateOrphan(ctx, args) {
     args = JSON.parse(args.toString());
-    let { id, name, gender, dob, yearOfEnroll, isAdopted, org, background } =
+    let { orphanId, name, gender, dob, yearOfEnroll, isAdopted, org, background } =
       args;
-    let data = { userId: id };
+    let data = { orphanId: orphanId };
     const exists = await this.orphanExists(ctx, JSON.stringify(data));
     if (!exists) {
-      throw new Error(`The asset ${id} does not exist`);
+      throw new Error(`The asset ${orphanId} does not exist`);
     }
 
     // overwriting original asset with new asset
     const updatedOrphan = {
-      id: id,
+      id: orphanId,
       name: name,
       gender: gender,
       dob: dob,
@@ -79,7 +79,7 @@ class AdminContract extends OrphanChaincode {
       org: org,
       background: background,
     };
-    ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedOrphan)));
+    ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(updatedOrphan)));
     return JSON.stringify(updatedOrphan);
   }
 

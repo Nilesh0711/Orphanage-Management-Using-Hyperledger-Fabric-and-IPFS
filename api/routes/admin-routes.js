@@ -11,7 +11,9 @@ exports.createOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org, args } = req.body;
   let { chaincodeName, channelName } = req.params;
-  await validateRole([ROLE_ADMIN], role, res);
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
 
   // Set up and connect to Fabric Gateway using the username and org in header
   const networkObj = await network.connectToNetwork(
@@ -34,12 +36,12 @@ exports.createOrphan = async (req, res) => {
   lastId = parseInt(lastId.id.slice(3)) + 1;
 
   const userIdToAdd = "ORP" + lastId;
-  args.id = userIdToAdd;
+  args.orphanId = userIdToAdd;
   console.log(userIdToAdd);
 
   // invoke create orphan function in admin contract
   try {
-    console.log("Registering user with userid " + args.id + " in ledger");
+    console.log("Registering user with userid " + args.orphanId + " in ledger");
     let result = await network.invoke(
       networkObj,
       false,
@@ -60,7 +62,7 @@ exports.createOrphan = async (req, res) => {
 
   // Enroll and register the user with the CA and adds the user to the wallet.
   try {
-    console.log("Registering user in wallet with userId " + args.id);
+    console.log("Registering user in wallet with userId " + args.orphanId);
     await network.registerUser(org, userIdToAdd);
     res
       .status(200)
@@ -68,16 +70,7 @@ exports.createOrphan = async (req, res) => {
   } catch (error) {
     console.log("\nSome error occured in Contract:DeleteOrphan\n");
     console.log(error);
-    console.log("Deleting user from ledger failed to store user in wallet");
-    args.userId = userIdToAdd;
-    await network.invoke(
-      networkObj,
-      false,
-      role + "Contract:deleteOrphan",
-      JSON.stringify(args),
-      res
-    );
-    res.send(registerUserRes.error);
+    res.status(500).send({ error });
   }
 };
 
@@ -85,7 +78,9 @@ exports.updateOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org, args } = req.body;
   let { chaincodeName, channelName } = req.params;
-  await validateRole([ROLE_ADMIN], role, res);
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
 
   // Set up and connect to Fabric Gateway using the username and org in header
   const networkObj = await network.connectToNetwork(
@@ -96,12 +91,13 @@ exports.updateOrphan = async (req, res) => {
     res
   );
 
-  let userIdToAdd = req.body.userId;
-  args.id = userIdToAdd;
+  args.orphanId = req.body.orphanId;
 
   // invoke create orphan function in admin contract
   try {
-    console.log("Updating user with userid " + args.id + " in ledger");
+    console.log(
+      "Updating orphan with orphanId " + args.orphanId + " in ledger"
+    );
     let result = await network.invoke(
       networkObj,
       false,
@@ -114,7 +110,7 @@ exports.updateOrphan = async (req, res) => {
     console.log(JSON.parse(result.toString()));
     res
       .status(200)
-      .send(getMessage(false, "Successfully Updated Orphan.", userIdToAdd));
+      .send(getMessage(false, "Successfully Updated Orphan.", args.orphanId));
   } catch (error) {
     console.log("\nSome error occured in Contract:UpdateOrphan\n");
     console.log(error);
@@ -129,7 +125,9 @@ exports.readOrphan = async (req, res) => {
   let { role, username, org, args } = req.body;
   let { chaincodeName, channelName } = req.params;
 
-  await validateRole([ROLE_ADMIN], role, res);
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
 
   // Set up and connect to Fabric Gateway using the username and org in header
   const networkObj = await network.connectToNetwork(
@@ -168,8 +166,9 @@ exports.queryAllOrphan = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org } = req.body;
   let { chaincodeName, channelName } = req.params;
-  await validateRole([ROLE_ADMIN], role, res);
-
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
   // Set up and connect to Fabric Gateway using the username and org in header
   // let args = req.body.args;
   const networkObj = await network.connectToNetwork(
