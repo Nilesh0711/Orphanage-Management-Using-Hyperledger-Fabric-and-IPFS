@@ -9,10 +9,10 @@
 const DoctorChaincode = require("./lib/doctorChaincode");
 const DoctorContract = require("./lib/doctorContract");
 
-module.exports.DoctorContract = DoctorContract;
 module.exports.DoctorChaincode = DoctorChaincode;
+module.exports.DoctorContract = DoctorContract;
 
 module.exports.contracts = [
-  DoctorContract,
   DoctorChaincode,
+  DoctorContract,
 ];

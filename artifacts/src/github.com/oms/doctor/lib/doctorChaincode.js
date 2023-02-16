@@ -21,9 +21,6 @@ class DoctorChaincode extends Contract {
   }
 
   async getAllDoctor(ctx,args) {
-    // args = JSON.parse(args);
-    // let id = args.id;
-    // let userId = args.userId;
     const allResults = [];
     // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
     const iterator = await ctx.stub.getStateByRange("", "");

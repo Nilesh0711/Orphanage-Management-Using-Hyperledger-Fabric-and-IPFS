@@ -42,8 +42,7 @@ exports.connectToNetwork = async function (
         id +
         " first";
       return res.send(response);
-    }
-
+    } 
     await gateway.connect(ccp, {
       wallet,
       identity: id,
@@ -52,10 +51,8 @@ exports.connectToNetwork = async function (
 
     // Build a network instance based on the channel where the smart contract is deployed
     const network = await gateway.getNetwork(channelName);
-
     // Get the contract from the network.
     const contract = network.getContract(chaincodeName);
-
     const networkObj = {
       contract: contract,
       network: network,
@@ -83,7 +80,6 @@ exports.invoke = async function (networkObj, isQuery, func, args, res) {
         args
       );
       await networkObj.gateway.disconnect();
-      console.log(response);
       return response;
     } else {
       console.log("Invoking contract");
@@ -91,7 +87,6 @@ exports.invoke = async function (networkObj, isQuery, func, args, res) {
       console.log(JSON.parse(args));
       const response = await networkObj.contract.submitTransaction(func, args);
       await networkObj.gateway.disconnect();
-      console.log(response);
       return response;
     }
   } catch (error) {

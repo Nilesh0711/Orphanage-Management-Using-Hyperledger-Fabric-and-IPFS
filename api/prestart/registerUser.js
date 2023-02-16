@@ -23,7 +23,7 @@ exports.enrollRegisterUser = async function (org, userId) {
       walletPath = path.join(process.cwd(), "org1-wallet");
       wallet = await buildWallet(Wallets, walletPath);
 
-      mspOrg = "Org1MSP";
+      mspOrg = "Org1";
       adminUserId = "adminorg1";
 
     } else if (org == "Org2") {
@@ -37,7 +37,7 @@ exports.enrollRegisterUser = async function (org, userId) {
       walletPath = path.join(process.cwd(), "org2-wallet");
       wallet = await buildWallet(Wallets, walletPath);
 
-      mspOrg = "Org2MSP";
+      mspOrg = "Org2";
       adminUserId = "adminorg2";
     }
     // enrolls users to Hospital 1 and adds the user to the wallet

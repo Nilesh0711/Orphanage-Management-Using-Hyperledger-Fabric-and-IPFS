@@ -19,8 +19,16 @@ class AdminContract extends OrphanChaincode {
   //Create orphan in the ledger
   async createOrphan(ctx, args) {
     args = JSON.parse(args.toString());
-    let { orphanId, name, gender, dob, yearOfEnroll, isAdopted, org, background } =
-      args;
+    let {
+      orphanId,
+      name,
+      gender,
+      dob,
+      yearOfEnroll,
+      isAdopted,
+      org,
+      background,
+    } = args;
     let data = { orphanId: orphanId };
     const exists = await this.orphanExists(ctx, JSON.stringify(data));
     if (exists) {
@@ -53,6 +61,7 @@ class AdminContract extends OrphanChaincode {
       isAdopted: asset.isAdopted,
       org: asset.org,
       background: asset.background,
+      permissionGranted: asset.permissionGranted,
     };
     return asset;
   }
@@ -60,8 +69,16 @@ class AdminContract extends OrphanChaincode {
   // UpdateAsset updates an existing asset in the world state with provided parameters.
   async updateOrphan(ctx, args) {
     args = JSON.parse(args.toString());
-    let { orphanId, name, gender, dob, yearOfEnroll, isAdopted, org, background } =
-      args;
+    let {
+      orphanId,
+      name,
+      gender,
+      dob,
+      yearOfEnroll,
+      isAdopted,
+      org,
+      background,
+    } = args;
     let data = { orphanId: orphanId };
     const exists = await this.orphanExists(ctx, JSON.stringify(data));
     if (!exists) {
@@ -85,11 +102,11 @@ class AdminContract extends OrphanChaincode {
 
   // GrantAccessToDoctor an existing asset in the world state with provided parameters.
   async grantAccessToDoctor(ctx, args) {
-    args = JSON.parse(args.toString());
-    let userId = args.userId;
+    args = JSON.parse(args);
+    let orphanId = args.orphanId;
     let doctorId = args.doctorId;
     let data = {
-      userId: userId,
+      orphanId,
     };
     let orphan = await OrphanChaincode.prototype.readOrphan(
       ctx,
@@ -99,39 +116,57 @@ class AdminContract extends OrphanChaincode {
     if (!orphan.permissionGranted.includes(doctorId)) {
       orphan.permissionGranted.push(doctorId);
     }
-
-    await ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
-    return JSON.stringify(orphan);
+    await ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(orphan)));
+    return JSON.stringify({
+      message:
+        "Successfully granted orphan " + orphanId + " permission to " + doctorId,
+    });
   }
 
   // RevokeAccessFromDoctor an existing asset in the world state with provided parameters.
-  async revokeAccessFromDoctor(ctx, args) {
-    args = JSON.parse(args.toString());
-    let userId = args.userId;
-    let doctorId = args.doctorId;
-    let data = {
-      userId: userId,
-    };
-    let orphan = await OrphanChaincode.prototype.readOrphan(
-      ctx,
-      JSON.stringify(data)
-    );
-    orphan = JSON.parse(orphan.toString());
-    if (orphan.permissionGranted.includes(doctorId)) {
-      orphan.PermissionGranted = orphan.permissionGranted.filter(
-        (doctor) => doctor != doctorId
-      );
-    }
-    await ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
-    return JSON.stringify(orphan);
-  }
+  // async revokeAccessFromDoctor(ctx, args) {
+  //   args = JSON.parse(args.toString());
+  //   let userId = args.userId;
+  //   let doctorId = args.doctorId;
+  //   let data = {
+  //     userId: userId,
+  //   };
+  //   let orphan = await OrphanChaincode.prototype.readOrphan(
+  //     ctx,
+  //     JSON.stringify(data)
+  //   );
+  //   orphan = JSON.parse(orphan.toString());
+  //   if (orphan.permissionGranted.includes(doctorId)) {
+  //     orphan.PermissionGranted = orphan.permissionGranted.filter(
+  //       (doctor) => doctor != doctorId
+  //     );
+  //   }
+  //   await ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
+  //   return JSON.stringify(orphan);
+  // }
 
-  //Retrieves all patients details
+  //Retrieves all orphan details
   async queryAllOrphan(ctx, args) {
     let resultsIterator = await ctx.stub.getStateByRange("", "");
     let asset = await this.getAllResults(resultsIterator, false);
 
     return this.fetchLimitedFields(asset);
+  }
+
+  async queryAllOrphanByOrg(ctx, args) {
+    args = JSON.parse(args);
+    let org = args.org;
+    let resultsIterator = await ctx.stub.getStateByRange("", "");
+    let asset = await this.getAllResults(resultsIterator, false);
+    let allResults = [];
+    for (let index = 0; index < asset.length; index++) {
+      const element = asset[index];
+      if (element.Record.org == org)
+        allResults.push({
+          element,
+        });
+    }
+    return allResults;
   }
 
   fetchLimitedFields = (asset) => {
@@ -142,8 +177,8 @@ class AdminContract extends OrphanChaincode {
         name: obj.Record.name,
         gender: obj.Record.gender,
         dob: obj.Record.dob,
-        yearOfEnroll: obj.Record.yearOfEnroll,
         isAdopted: obj.Record.isAdopted,
+        yearOfEnroll: obj.Record.yearOfEnroll,
         org: obj.Record.org,
         background: obj.Record.background,
       };
@@ -151,5 +186,43 @@ class AdminContract extends OrphanChaincode {
 
     return asset;
   };
+
+  async queryAllDoctor(ctx, args) {
+    let data = await ctx.stub.invokeChaincode(
+      "doctor",
+      ["DoctorChaincode:getAllDoctor", args],
+      "oms"
+    );
+    return data.payload.toString();
+  }
+
+  async queryAllDoctorByOrg(ctx, args) {
+    let data = await ctx.stub.invokeChaincode(
+      "doctor",
+      ["DoctorContract:queryAllDoctorByOrg", args],
+      "oms"
+    );
+    return data.payload.toString();
+  }
+
+  // Create new Doctor
+  async createDoctor(ctx, args) {
+    let result = await ctx.stub.invokeChaincode(
+      "doctor",
+      ["DoctorContract:createDoctor", args],
+      "oms"
+    );
+    return result.payload.toString();
+  }
+
+  // Get Latest Doctor Id
+  async getLatestDoctorId(ctx, args) {
+    let result = await ctx.stub.invokeChaincode(
+      "doctor",
+      ["DoctorContract:getLatestDoctorId", args],
+      "oms"
+    );
+    return result.payload.toString();
+  }
 }
 module.exports = AdminContract;

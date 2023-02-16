@@ -5,9 +5,15 @@
     "gender": "male",
     "dob": "07-11-2002",
     "yearOfEnroll": "2002",
-    "isAdopted":"false",
-    "org":"Org1",
-    "background": "No parents"
+    "isAdopted": "false",
+    "org": "Org1",
+    "background": "No parents",
+    "changedBy": [],
+    "allergies": [],
+    "diagnosis": [],
+    "treatment": [],
+    "disfigurements": [],
+    "permissionGranted": []
   },
   {
     "id": "ORP2",
@@ -15,9 +21,15 @@
     "gender": "male",
     "dob": "07-11-2002",
     "yearOfEnroll": "2002",
-    "isAdopted":"false",
-    "org":"Org2",
-    "background": "No parents"
+    "isAdopted": "false",
+    "org": "Org2",
+    "background": "No parents",
+    "changedBy": [],
+    "allergies": [],
+    "diagnosis": [],
+    "treatment": [],
+    "disfigurements": [],
+    "permissionGranted": []
   },
   {
     "id": "ORP3",
@@ -25,9 +37,15 @@
     "gender": "male",
     "dob": "07-11-2002",
     "yearOfEnroll": "2002",
-    "isAdopted":"false",
-    "org":"Org1",
-    "background": "No parents"
+    "isAdopted": "false",
+    "org": "Org1",
+    "background": "No parents",
+    "changedBy": [],
+    "allergies": [],
+    "diagnosis": [],
+    "treatment": [],
+    "disfigurements": [],
+    "permissionGranted": []
   },
   {
     "id": "ORP4",
@@ -35,8 +53,14 @@
     "gender": "male",
     "dob": "07-11-2002",
     "yearOfEnroll": "2002",
-    "isAdopted":"false",
-    "org":"Org2",
-    "background": "No parents"
+    "isAdopted": "false",
+    "org": "Org2",
+    "background": "No parents",
+    "changedBy": [],
+    "allergies": [],
+    "diagnosis": [],
+    "treatment": [],
+    "disfigurements": [],
+    "permissionGranted": []
   }
 ]

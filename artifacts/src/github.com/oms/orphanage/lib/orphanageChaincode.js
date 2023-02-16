@@ -26,7 +26,7 @@ class OrphanChaincode extends Contract {
     let orphanId = args.orphanId;
     const dataJSON = await ctx.stub.getState(orphanId); // get the asset from chaincode state
     if (!dataJSON || dataJSON.length === 0) {
-      throw new Error(`The orphan ${id} does not exist`);
+      throw new Error(`The orphan ${orphanId} does not exist`);
     }
     return dataJSON.toString();
   }

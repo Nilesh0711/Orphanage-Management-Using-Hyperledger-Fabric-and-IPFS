@@ -6,7 +6,7 @@ export FABRIC_CFG_PATH=${PWD}/artifacts/channel/config/
 
 # export PRIVATE_DATA_CONFIG=${PWD}/artifacts/private-data/collections_config.json
 
-export CHANNEL_NAME=mychannel
+export CHANNEL_NAME=oms
 
 setGlobalsForOrderer() {
     export CORE_PEER_LOCALMSPID="OrdererMSP"

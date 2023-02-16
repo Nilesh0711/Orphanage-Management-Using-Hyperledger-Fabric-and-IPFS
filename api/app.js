@@ -63,23 +63,14 @@ app.post(
   }
 );
 
-// revoke doctor access orphan api
-app.post(
-  "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
-  authRoutes.verifyToken,
-  async function (req, res) {
-    await adminRoutes.revokeAccessFromDoctor(req, res);
-  }
-);
-
-// delete orphan api
-app.post(
-  "/channels/:channelName/chaincodes/:chaincodeName/admin-delete-orphan",
-  authRoutes.verifyToken,
-  async function (req, res) {
-    await adminRoutes.deleteOrphan(req, res);
-  }
-);
+// // revoke doctor access orphan api
+// app.post(
+//   "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
+//   authRoutes.verifyToken,
+//   async function (req, res) {
+//     await adminRoutes.revokeAccessFromDoctor(req, res);
+//   }
+// );
 
 // create doctor api
 app.post(
@@ -108,22 +99,60 @@ app.get(
   }
 );
 
-// get all doctor api
+// query all orphan by org api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-orphan-org",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllOrphanByOrg(req, res);
+  }
+);
+
+// query all doctor api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-doctor",
   authRoutes.verifyToken,
   async function (req, res) {
-    await adminRoutes.getDoctorsByOrgId(req, res);
+    await adminRoutes.queryAllDoctor(req, res);
   }
 );
 
+// query all doctor by org api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-doctor-org",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllDoctorByOrg(req, res);
+  }
+);
+
+
 // ******** DOCTOR API ********
+
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readAOrphanGranted(req, res);
+  }
+);
+
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-update-orphan",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.updateOrphanMedicalRecord(req, res);
+  }
+);
 
 // read assigned orphan api
 
 // read assigned orphan history medical data api
 
 // update orphan medical record api
+
+
+
 
 // port listen
 app.listen(port, () => {
