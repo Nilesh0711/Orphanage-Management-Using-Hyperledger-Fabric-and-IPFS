@@ -63,14 +63,14 @@ app.post(
   }
 );
 
-// // revoke doctor access orphan api
-// app.post(
-//   "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
-//   authRoutes.verifyToken,
-//   async function (req, res) {
-//     await adminRoutes.revokeAccessFromDoctor(req, res);
-//   }
-// );
+// revoke doctor access orphan api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.revokeAccessToDoctor(req, res);
+  }
+);
 
 // create doctor api
 app.post(

@@ -119,31 +119,40 @@ class AdminContract extends OrphanChaincode {
     await ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(orphan)));
     return JSON.stringify({
       message:
-        "Successfully granted orphan " + orphanId + " permission to " + doctorId,
+        "Successfully granted orphan " +
+        orphanId +
+        " permission to " +
+        doctorId,
     });
   }
 
   // RevokeAccessFromDoctor an existing asset in the world state with provided parameters.
-  // async revokeAccessFromDoctor(ctx, args) {
-  //   args = JSON.parse(args.toString());
-  //   let userId = args.userId;
-  //   let doctorId = args.doctorId;
-  //   let data = {
-  //     userId: userId,
-  //   };
-  //   let orphan = await OrphanChaincode.prototype.readOrphan(
-  //     ctx,
-  //     JSON.stringify(data)
-  //   );
-  //   orphan = JSON.parse(orphan.toString());
-  //   if (orphan.permissionGranted.includes(doctorId)) {
-  //     orphan.PermissionGranted = orphan.permissionGranted.filter(
-  //       (doctor) => doctor != doctorId
-  //     );
-  //   }
-  //   await ctx.stub.putState(userId, Buffer.from(JSON.stringify(orphan)));
-  //   return JSON.stringify(orphan);
-  // }
+  async revokeAccessFromDoctor(ctx, args) {
+    args = JSON.parse(args);
+    let orphanId = args.orphanId;
+    let doctorId = args.doctorId;
+    let data = {
+      orphanId,
+    };
+    let orphan = await OrphanChaincode.prototype.readOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan.toString());
+    if (orphan.permissionGranted.includes(doctorId)) {
+      orphan.permissionGranted = orphan.permissionGranted.filter(
+        (doctor) => doctor != doctorId
+      );
+    }
+    await ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(orphan)));
+    return JSON.stringify({
+      message:
+        "Successfully revoked orphan " +
+        orphanId +
+        " permission from " +
+        doctorId,
+    });
+  }
 
   //Retrieves all orphan details
   async queryAllOrphan(ctx, args) {
