@@ -351,7 +351,7 @@ exports.queryAllDoctor = async (req, res) => {
       res
     );
     console.log("Result is : ");
-    let arr = JSON.parse(JSON.parse(result.toString()));
+    let arr = (JSON.parse(result.toString()));
     let allResults = [];
     arr.forEach((element) => {
       allResults.push({
