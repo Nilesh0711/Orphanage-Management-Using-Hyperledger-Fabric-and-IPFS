@@ -40,6 +40,7 @@ class DoctorContract extends DoctorChaincode {
       name: asset.name,
       gender: asset.gender,
       org: asset.org,
+      dob: asset.dob,
       disfigurements: asset.disfigurements,
       treatment: asset.treatment,
       diagnosis: asset.diagnosis,
@@ -111,7 +112,7 @@ class DoctorContract extends DoctorChaincode {
       const element = asset[index];
       if (element.Record.org == org)
         allResults.push({
-          element
+          element,
         });
     }
     return allResults;
@@ -151,112 +152,39 @@ class DoctorContract extends DoctorChaincode {
   }
 
   // This function is to update Orphan medical details. This function should be called by only doctor.
-  // async updateOrphanMedicalDetails(ctx, args) {
-  //   args = JSON.parse(args);
-  //   let isDataChanged = false;
-  //   let patientId = args.patientId;
-  //   let newSymptoms = args.symptoms;
-  //   let newDiagnosis = args.diagnosis;
-  //   let newTreatment = args.treatment;
-  //   let newFollowUp = args.followUp;
-  //   let updatedBy = args.changedBy;
-
-  //   const patient = await PrimaryContract.prototype.readPatient(ctx, patientId);
-
-  //   if (
-  //     newSymptoms !== null &&
-  //     newSymptoms !== "" &&
-  //     patient.symptoms !== newSymptoms
-  //   ) {
-  //     patient.symptoms = newSymptoms;
-  //     isDataChanged = true;
-  //   }
-
-  //   if (
-  //     newDiagnosis !== null &&
-  //     newDiagnosis !== "" &&
-  //     patient.diagnosis !== newDiagnosis
-  //   ) {
-  //     patient.diagnosis = newDiagnosis;
-  //     isDataChanged = true;
-  //   }
-
-  //   if (
-  //     newTreatment !== null &&
-  //     newTreatment !== "" &&
-  //     patient.treatment !== newTreatment
-  //   ) {
-  //     patient.treatment = newTreatment;
-  //     isDataChanged = true;
-  //   }
-
-  //   if (
-  //     newFollowUp !== null &&
-  //     newFollowUp !== "" &&
-  //     patient.followUp !== newFollowUp
-  //   ) {
-  //     patient.followUp = newFollowUp;
-  //     isDataChanged = true;
-  //   }
-
-  //   if (updatedBy !== null && updatedBy !== "") {
-  //     patient.changedBy = updatedBy;
-  //   }
-
-  //   if (isDataChanged === false) return;
-
-  //   const buffer = Buffer.from(JSON.stringify(patient));
-  //   await ctx.stub.putState(patientId, buffer);
-  // }
+  async updateOrphanMedicalDetails(ctx, args) {
+    let result = await ctx.stub.invokeChaincode(
+      "orphanage",
+      ["AdminContract:updateOrphanMedicalDetails", args],
+      "oms"
+    );
+    return result.payload.toString();
+  }
 
   //Retrieves orphan medical history based on orphanId
-  // async GetOrphanHistory(ctx, args) {
-  //   args = JSON.parse(args);
-  //   let userId = args.userId;
-  //   let resultsIterator = await ctx.stub.getHistoryForKey(userId);
-  //   let asset = await this.GetAllResults(resultsIterator, true);
-
-  //   return this.fetchLimitedFields(asset, false);
-  // }
-
-  //Retrieves all orphan details
-  // async QueryAllOrphan(ctx, args) {
-  //   args = JSON.parse(args);
-  //   let id = args.id;
-  //   let userId = args.userId;
-  //   let resultsIterator = await ctx.stub.getStateByRange("", "");
-  //   let asset = await this.GetAllResults(resultsIterator, false);
-  //   const permissionedAssets = [];
-  //   for (let i = 0; i < asset.length; i++) {
-  //     const obj = asset[i];
-  //     if (
-  //       "PermissionGranted" in obj.Record &&
-  //       obj.Record.PermissionGranted.includes(id)
-  //     ) {
-  //       permissionedAssets.push(asset[i]);
-  //     }
-  //   }
-
-  //   return this.fetchLimitedFields(permissionedAssets);
-  // }
-
-  // fetchLimitedFields = (asset, includeTimeStamp = false) => {
-  //   for (let i = 0; i < asset.length; i++) {
-  //     const obj = asset[i];
-  //     asset[i] = {
-  //       ID: obj.Key,
-  //       firstName: obj.Record.firstName,
-  //       lastName: obj.Record.lastName,
-  //       Age: obj.Record.Age,
-  //       Gender: obj.Record.Gender,
-  //     };
-  //     if (includeTimeStamp) {
-  //       asset[i].changedBy = obj.Record.changedBy;
-  //       asset[i].Timestamp = obj.Timestamp;
-  //     }
-  //   }
-  //   return asset;
-  // };
+  async getOrphanMedicalHistory(ctx, args) {
+    args = JSON.parse(args);
+    let doctorId = args.doctorId;
+    let orphanId = args.orphanId;
+    let asset = await ctx.stub.invokeChaincode(
+      "orphanage",
+      ["OrphanChaincode:readOrphan", JSON.stringify({ orphanId })],
+      "oms"
+    );
+    asset = JSON.parse(asset.payload.toString());
+    const permissionArray = asset.permissionGranted;
+    if (!permissionArray.includes(doctorId)) {
+      throw new Error(
+        `The doctor ${doctorId} does not have permission to patient ${orphanId}`
+      );
+    }
+    let result = await ctx.stub.invokeChaincode(
+      "orphanage",
+      ["AdminContract:getOrphanMedicalHistory", JSON.stringify(args)],
+      "oms"
+    );
+    return result.payload.toString();
+  }
 
 }
 module.exports = DoctorContract;

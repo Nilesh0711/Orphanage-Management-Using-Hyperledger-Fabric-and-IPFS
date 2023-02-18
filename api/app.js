@@ -138,6 +138,14 @@ app.get(
 );
 
 app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan-history",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readAOrphanGrantedHistory(req, res);
+  }
+);
+
+app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/doctor-update-orphan",
   authRoutes.verifyToken,
   async function (req, res) {

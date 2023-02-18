@@ -190,6 +190,7 @@ class AdminContract extends OrphanChaincode {
         yearOfEnroll: obj.Record.yearOfEnroll,
         org: obj.Record.org,
         background: obj.Record.background,
+        permissionGranted: obj.Record.permissionGranted,
       };
     }
 
@@ -233,5 +234,62 @@ class AdminContract extends OrphanChaincode {
     );
     return result.payload.toString();
   }
+
+  // update orphan medical records
+  async updateOrphanMedicalDetails(ctx, args) {
+    args = JSON.parse(args);
+    let {
+      allergies,
+      diagnosis,
+      treatment,
+      disfigurements,
+      orphanId,
+      doctorId,
+    } = args;
+    let orphan = await OrphanChaincode.prototype.readOrphan(
+      ctx,
+      JSON.stringify({ orphanId })
+    );
+    orphan = JSON.parse(orphan.toString());
+    orphan.changedBy = [doctorId];
+    orphan.allergies = allergies;
+    orphan.diagnosis = diagnosis;
+    orphan.treatment = treatment;
+    orphan.disfigurements = disfigurements;
+
+    const buffer = Buffer.from(JSON.stringify(orphan));
+    await ctx.stub.putState(orphanId, buffer);
+    return JSON.stringify({
+      message: "Orphan medical record has successfully updated",
+    });
+  }
+
+  // get orphan medical history
+  async getOrphanMedicalHistory(ctx, args) {
+    args = JSON.parse(args);
+    let orphanId = args.orphanId;
+    let resultsIterator = await ctx.stub.getHistoryForKey(orphanId);
+    let asset = await this.getAllResults(resultsIterator, true);
+    // return asset
+
+    return this.fetchLimitedFieldsForMedialRecords(asset, false);
+  }
+
+  fetchLimitedFieldsForMedialRecords = (asset) => {
+    let allResults = [];
+    for (let i = 0; i < asset.length; i++) {
+      const obj = asset[i];
+      if (obj.Value.changedBy.length > 0) {
+        allResults.push({
+          disfigurements: obj.Value.disfigurements,
+          treatment: obj.Value.treatment,
+          diagnosis: obj.Value.diagnosis,
+          allergies: obj.Value.allergies,
+          changedBy: obj.Value.changedBy,
+        });
+      }
+    }
+    return allResults;
+  };
 }
 module.exports = AdminContract;
