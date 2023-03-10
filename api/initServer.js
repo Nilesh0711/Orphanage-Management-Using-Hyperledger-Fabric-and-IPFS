@@ -37,7 +37,8 @@ async function initRedis() {
     console.log("admin 1 redis connected");
   });
   try {
-    await redisClient.set("adminorg1", redisPassword);
+    // await redisClient.set("adminorg1", redisPassword);
+    await redisClient.HSET("admin","adminorg1",redisPassword)
     redisClient.quit();
   } catch (error) {
     console.log(error);
@@ -57,7 +58,8 @@ async function initRedis() {
     console.log("admin 2 redis connected");
   });
   try {
-    await redisClient.set("adminorg2", redisPassword);
+    // await redisClient.set("adminorg2", redisPassword);
+    await redisClient.HSET("admin","adminorg2",redisPassword)
     redisClient.quit();
   } catch (error) {
     console.log(error);
@@ -73,10 +75,7 @@ async function enrollAndRegisterDoctors() {
     const doctors = JSON.parse(jsonString);
     for (let i = 0; i < doctors.length; i++) {
       await createRedisForDoctor(doctors[i].org, doctors[i].id);
-      await enrollRegisterUser(
-        doctors[i].org,
-        doctors[i].id
-      );
+      await enrollRegisterUser(doctors[i].org, doctors[i].id);
     }
   } catch (error) {
     console.log(error);

@@ -4,7 +4,6 @@ const util = require("util");
 exports.ROLE_ADMIN = "Admin";
 exports.ROLE_DOCTOR = "Doctor";
 
-
 exports.getMessage = function (isError, message, id = "") {
   if (isError) {
     return { error: message };
@@ -22,7 +21,7 @@ exports.validateRole = async function (roles, reqRole, res) {
     !roles.includes(reqRole)
   ) {
     // user's role is not authorized
-    return false; 
+    return false;
   }
   return true;
 };
@@ -56,7 +55,8 @@ exports.createRedisForDoctor = async function (org, id) {
     console.log("Successfully connected to redis with port: " + port);
   });
   try {
-    await redisClient.set(id, doctorPassword);
+    // await redisClient.set(id, [doctorPassword, "Doctor"]);
+    await redisClient.HSET("doctor", id, doctorPassword);
     redisClient.quit();
     return true;
   } catch (error) {

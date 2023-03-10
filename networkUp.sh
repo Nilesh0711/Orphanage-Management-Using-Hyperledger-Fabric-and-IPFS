@@ -40,15 +40,15 @@ function progress()
 
 echo "The task is in progress, please wait a few seconds"
 
-progress 0 "    Start Network Up                                            "
+progress 0 "Start Network Up              "
 
 
-progress 10 "   Removing All docker containers                              "
+progress 10 "Removing All docker container"
 docker rm -vf $(docker ps -aq) &> /dev/null
 cd ${PWD}/artifacts/channel/
 
 
-progress 15 "   Removing crypto-config genesis mychannel and anchors        "
+progress 15 "Removing redudant files      "
 sudo rm -rf crypto-config/
 sudo rm -rf genesis.block
 sudo rm -rf mychannel.tx
@@ -57,20 +57,20 @@ sudo rm -rf Org2MSPanchors.tx
 cd create-certificate-with-ca
 sleep 1
 
-progress 20 "   Removing fabric ca                                          "
+progress 20 "Removing fabric ca           "
 sudo rm -rf fabric-ca/
 sleep 1
 docker-compose up -d &> /dev/null
 sleep 1
 
 
-progress 30 "   creating fabric ca                                          "
+progress 30 "creating fabric ca           "
 ./create-certificate-with-ca.sh &> /dev/null
 cd ../
 sleep 1
 
 
-progress 40 "   creating channel aritfacts                                  "
+progress 40 "creating channel aritfact    "
 ./create-artifacts.sh &> /dev/null
 cd ../
 sleep 1
@@ -79,40 +79,40 @@ cd ../
 sleep 1
 
 
-progress 50 "   create channel                                              "
+progress 50 "create channel               "
 ./createChannel.sh &> /dev/null
 sleep 1
 
 
-progress 60 "   deploy chaincode for orphanage                              "
+progress 60 "deploying orphanage chaincode"
 ./deployOrphanChaincode.sh &> /dev/null
 sleep 1
 
 
-progress 70 "   deploy chaincode for doctor                                 "
+progress 70 "deploying doctor chaincode   "
 ./deployDoctorChaincode.sh &> /dev/null
 sleep 1
 
 
-progress 80 "   Removing wallet for org1                                    "
+progress 80 "Removing wallet for org1     "
 cd api
 sudo rm -rf org1-wallet
 sleep 1
 
 
-progress 85 "   Removing wallet for org2                                    "
+progress 85 "Removing wallet for org2     "
 sudo rm -rf org2-wallet
 sleep 1
 
 
-progress 90 "   generating CCP Profiles                                     "
+progress 90 "generating CCP Profiles      "
 cd config
 ./generate-ccp.sh &> /dev/null
 cd ../
 sleep 1
 
 
-progress 100 "                                                              "
+progress 100 "                            "
 npm start
 
 
