@@ -153,6 +153,15 @@ app.post(
   }
 );
 
+// read orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-doctor",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readDoctor(req, res);
+  }
+);
+
 // read assigned orphan api
 
 // read assigned orphan history medical data api

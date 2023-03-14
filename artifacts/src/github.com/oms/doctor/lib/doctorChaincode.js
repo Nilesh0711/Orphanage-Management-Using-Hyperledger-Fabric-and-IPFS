@@ -42,6 +42,17 @@ class DoctorChaincode extends Contract {
     return JSON.stringify(allResults);
   }
 
+  // ReadAsset returns the asset stored in the world state with given id.
+  async readDoctor(ctx, args) {
+    args = JSON.parse(args);
+    let doctorId = args.doctorId;
+    const dataJSON = await ctx.stub.getState(doctorId); // get the asset from chaincode state
+    if (!dataJSON || dataJSON.length === 0) {
+      throw new Error(`The orphan ${doctorId} does not exist`);
+    }
+    return dataJSON.toString();
+  }
+
 }
 
 module.exports = DoctorChaincode;

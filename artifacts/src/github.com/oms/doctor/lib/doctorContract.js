@@ -186,5 +186,23 @@ class DoctorContract extends DoctorChaincode {
     return result.payload.toString();
   }
 
+  //Read Doctor details based on doctorId
+  async readDoctor(ctx, args) {
+    let asset = await DoctorChaincode.prototype.readDoctor(ctx, args);
+    asset = JSON.parse(asset.toString());
+    asset = {
+      id: asset.id,
+      firstName: asset.firstName,
+      lastName: asset.lastName,
+      age: asset.age,
+      org: asset.org,
+      speciality: asset.speciality,
+      qualification: asset.qualification,
+      experience: asset.experience,
+      phoneNo: asset.phoneNo,
+      personalAddress: asset.personalAddress,
+    };
+    return asset;
+  }
 }
 module.exports = DoctorContract;
