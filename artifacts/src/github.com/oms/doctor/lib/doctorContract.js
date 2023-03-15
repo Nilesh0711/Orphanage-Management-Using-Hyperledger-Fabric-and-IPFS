@@ -204,5 +204,16 @@ class DoctorContract extends DoctorChaincode {
     };
     return asset;
   }
+
+  // This function is to update Orphan medical details. This function should be called by only doctor.
+  async readOrphanUnderDoctor(ctx, args) {
+    let result = await ctx.stub.invokeChaincode(
+      "orphanage",
+      ["AdminContract:readOrphanUnderDoctor", args],
+      "oms"
+    );
+    return result.payload.toString();
+  }
+
 }
 module.exports = DoctorContract;

@@ -162,14 +162,14 @@ app.get(
   }
 );
 
-// read assigned orphan api
-
-// read assigned orphan history medical data api
-
-// update orphan medical record api
-
-
-
+// read orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan-assigned",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readOrphanUnderDoctor(req, res);
+  }
+);
 
 // port listen
 app.listen(port, () => {

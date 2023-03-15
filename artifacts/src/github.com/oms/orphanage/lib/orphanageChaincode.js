@@ -65,14 +65,6 @@ class OrphanChaincode extends Contract {
     return JSON.stringify(allResults);
   }
 
-  // async getHistoryForOrphan(ctx, args) {
-  //   args = JSON.parse(args);
-  //   let orphanId = args.orphanId;
-  //   let resultsIterator = await ctx.stub.getHistoryForKey(orphanId);
-  //   let results = await this.getAllResults(resultsIterator, true);
-  //   return JSON.stringify(results);
-  // }
-
   async getAllResults(iterator, isHistory) {
     let allResults = [];
     let res = await iterator.next();

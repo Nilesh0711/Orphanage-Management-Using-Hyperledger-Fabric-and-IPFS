@@ -177,3 +177,47 @@ exports.readDoctor = async (req, res) => {
     res.send(registerUserRes.error);
   }
 };
+
+exports.readOrphanUnderDoctor = async (req, res) => {
+ // User role from the request header is validated
+ let { role, username, org } = req.body;
+ let { chaincodeName, channelName } = req.params;
+ // args.doctorId = username;
+
+ let isAuthorized = await validateRole([ROLE_DOCTOR], role, res);
+ if (!isAuthorized)
+   return res.status(500).send({ message: "Unauthorized access" });
+
+ // Set up and connect to Fabric Gateway using the username and org in header
+
+ const networkObj = await network.connectToNetwork(
+   username,
+   org,
+   channelName,
+   chaincodeName,
+   res
+ );
+
+ try {
+   // args.doctorId = username;
+   let result = await network.invoke(
+     networkObj,
+     true,
+     role + "Contract:readOrphanUnderDoctor",
+     JSON.stringify({doctorId:username}),
+     res
+   );
+   if (result.statusCode != 500) {
+     console.log("Result is : ");
+     console.log(JSON.parse(result.toString()));
+     res.status(200).send({
+       result: JSON.parse(result.toString()),
+     });
+   }
+
+   return;
+ } catch (error) {
+   console.log("Some error occurred in doctor read orphan");
+   console.log(error);
+ }
+};

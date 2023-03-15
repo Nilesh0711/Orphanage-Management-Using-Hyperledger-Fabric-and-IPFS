@@ -264,6 +264,27 @@ class AdminContract extends OrphanChaincode {
     });
   }
 
+  // read orphans which are under doctor using doctorId
+  async readOrphanUnderDoctor(ctx, args) {
+    args = JSON.parse(args);
+    let doctorId = args.doctorId;
+    let resultsIterator = await ctx.stub.getStateByRange("", "");
+    let asset = await this.getAllResults(resultsIterator, false);
+    let allResults = [];
+    for (let index = 0; index < asset.length; index++) {
+      const element = asset[index];
+      if (element.Record.permissionGranted == doctorId)
+        allResults.push({
+          id:element.Record.id,
+          name:element.Record.name,
+          gender:element.Record.gender,
+          org:element.Record.org,
+          dob:element.Record.dob
+        });
+    }
+    return allResults;
+  }
+
   // get orphan medical history
   async getOrphanMedicalHistory(ctx, args) {
     args = JSON.parse(args);
