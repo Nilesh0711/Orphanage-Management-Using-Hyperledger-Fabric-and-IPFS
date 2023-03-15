@@ -4,9 +4,10 @@ const network = require("../app/helper");
 
 exports.readAOrphanGranted = async (req, res) => {
   // User role from the request header is validated
-  let { role, username, org, args } = req.body;
+  let { role, username, org } = req.body;
+  let {orphanId} = req.query;
   let { chaincodeName, channelName } = req.params;
-  args.doctorId = username;
+  // args.doctorId = username;
 
   let isAuthorized = await validateRole([ROLE_DOCTOR], role, res);
   if (!isAuthorized)
@@ -23,12 +24,12 @@ exports.readAOrphanGranted = async (req, res) => {
   );
 
   try {
-    args.doctorId = username;
+    // args.doctorId = username;
     let result = await network.invoke(
       networkObj,
       true,
       role + "Contract:readOrphanGranted",
-      JSON.stringify(args),
+      JSON.stringify({orphanId:orphanId, doctorId:username}),
       res
     );
     if (result.statusCode != 500) {
@@ -48,9 +49,10 @@ exports.readAOrphanGranted = async (req, res) => {
 
 exports.readAOrphanGrantedHistory = async (req, res) => {
   // User role from the request header is validated
-  let { role, username, org, args } = req.body;
+  let { role, username, org } = req.body;
+  let {orphanId} = req.query;
   let { chaincodeName, channelName } = req.params;
-  args.doctorId = username;
+  // args.doctorId = username;
 
   let isAuthorized = await validateRole([ROLE_DOCTOR], role, res);
   if (!isAuthorized)
@@ -67,12 +69,12 @@ exports.readAOrphanGrantedHistory = async (req, res) => {
   );
 
   try {
-    args.doctorId = username;
+    // args.doctorId = username;
     let result = await network.invoke(
       networkObj,
       true,
       role + "Contract:getOrphanMedicalHistory",
-      JSON.stringify(args),
+      JSON.stringify({orphanId:orphanId, doctorId:username}),
       res
     );
     if (result.statusCode != 500) {
@@ -135,7 +137,8 @@ exports.updateOrphanMedicalRecord = async (req, res) => {
 };
 
 exports.readDoctor = async (req, res) => {
-  let { role, username, org, args } = req.body;
+  let { role, username, org } = req.body;
+  let {doctorId} = req.query
   let { chaincodeName, channelName } = req.params;
 
   let isAuthorized = await validateRole([ROLE_DOCTOR], role, res);
@@ -156,7 +159,7 @@ exports.readDoctor = async (req, res) => {
       networkObj,
       true,
       role + "Contract:readDoctor",
-      JSON.stringify(args),
+      JSON.stringify({doctorId:doctorId}),
       res
     );
     if (result.statusCode != 500) {

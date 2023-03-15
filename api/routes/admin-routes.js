@@ -190,7 +190,9 @@ exports.updateOrphan = async (req, res) => {
 
 exports.readOrphan = async (req, res) => {
   // User role from the request header is validated
-  let { role, username, org, args } = req.body;
+  let { role, username, org } = req.body;
+  let { orphanId } = req.query;
+  // let {args} = req.body
   let { chaincodeName, channelName } = req.params;
 
   let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
@@ -205,13 +207,15 @@ exports.readOrphan = async (req, res) => {
     chaincodeName,
     res
   );
+  // console.log(args);
 
   try {
     let result = await network.invoke(
       networkObj,
       true,
       role + "Contract:readOrphan",
-      JSON.stringify(args),
+      JSON.stringify({ orphanId: orphanId }),
+      // JSON.stringify(args),
       res
     );
     if (result.statusCode != 500) {
@@ -292,11 +296,11 @@ exports.queryAllOrphanByOrg = async (req, res) => {
       networkObj,
       true,
       role + "Contract:queryAllOrphanByOrg",
-      JSON.stringify({org}),
+      JSON.stringify({ org }),
       res
     );
     console.log("Result is : ");
-    let arr = (JSON.parse(result.toString()));
+    let arr = JSON.parse(result.toString());
     console.log(arr);
     let allResults = [];
     arr.forEach((element) => {
@@ -310,7 +314,6 @@ exports.queryAllOrphanByOrg = async (req, res) => {
         dob: element.element.Record.dob,
         isAdopted: element.element.Record.isAdopted,
         permissionGranted: element.element.Record.permissionGranted,
-
       });
     });
     res.status(200).send({
@@ -351,7 +354,7 @@ exports.queryAllDoctor = async (req, res) => {
       res
     );
     console.log("Result is : ");
-    let arr = (JSON.parse(result.toString()));
+    let arr = JSON.parse(result.toString());
     let allResults = [];
     arr.forEach((element) => {
       allResults.push({
@@ -401,11 +404,11 @@ exports.queryAllDoctorByOrg = async (req, res) => {
       networkObj,
       true,
       role + "Contract:queryAllDoctorByOrg",
-      JSON.stringify({org}),
+      JSON.stringify({ org }),
       res
     );
     console.log("Result is : ");
-    let arr = (JSON.parse(result.toString()));
+    let arr = JSON.parse(result.toString());
     let allResults = [];
     arr.forEach((element) => {
       allResults.push({
