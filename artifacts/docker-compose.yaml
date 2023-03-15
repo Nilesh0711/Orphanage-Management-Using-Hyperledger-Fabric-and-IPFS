@@ -2,8 +2,67 @@ version: "2"
 
 networks:
   test:
+  # ipfs-network:
+  #   driver: bridge
 
 services:
+  # ipfs-cluster:
+  #   image: ipfs/ipfs-cluster:latest
+  #   container_name: ipfs-cluster
+  #   restart: always
+  #   environment:
+  #     CLUSTER_SECRET: <YOUR_CLUSTER_SECRET>
+  #     CLUSTER_IPFS_TRUST_ALL: "true"
+  #   ports:
+  #     - 9094:9094
+  #   volumes:
+  #     - /path/to/ipfs-cluster/data:/data/ipfs-cluster
+  #     - /path/to/ipfs-cluster/config:/data/ipfs-cluster/config
+  #   networks:
+  #     ipfs-network:
+  #       aliases:
+  #         - ipfs-cluster
+
+  # ipfs:
+  #   image: ipfs/go-ipfs:latest
+  #   container_name: ipfs
+  #   restart: always
+  #   command: ["--enable-pubsub-experiment"]
+  #   volumes:
+  #     - /path/to/ipfs/data:/data/ipfs
+  #     - /path/to/ipfs/config:/data/ipfs/config
+  #   networks:
+  #     ipfs-network:
+  #       aliases:
+  #         - ipfs
+
+
+  # ipfs:
+  #   image: ipfs/go-ipfs:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ipfs-data:/data/ipfs
+  #   ports:
+  #     - "4001:4001"
+  #     - "127.0.0.1:5001:5001"
+  #   command: ["--enable-pubsub-experiment"]
+
+  # ipfs-cluster:
+  #   image: ipfs/ipfs-cluster:latest
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - ipfs
+  #   environment:
+  #     CLUSTER_PEERNAME: "cluster-node-1"
+  #     CLUSTER_SECRET: "your-cluster-secret"
+  #   volumes:
+  #     - ipfs-cluster-data:/data/ipfs-cluster
+  #   ports:
+  #     - "9094:9094"
+  #     - "9096:9096"
+  #     - "9097:9097"
+  #   command: ["daemon", "--bootstrap", "/ip4/172.19.0.2/tcp/4001/ipfs/QmZ2QKBFf6Czm2QX9UDfjK3qsd1YrxD1hkmfCkThZUnKqp"]
+
   orderer.example.com:
     container_name: orderer.example.com
     image: hyperledger/fabric-orderer:2.1
@@ -77,6 +136,9 @@ services:
 
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=artifacts_test
 
+      # ipfs address
+      - IPFS_ADDRESS=ipfs:5001
+
       - CORE_PEER_ID=peer0.org1.example.com
       - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
@@ -124,6 +186,10 @@ services:
       - CORE_PEER_LOCALMSPID=Org2MSP
 
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=artifacts_test
+
+      # ipfs address
+      - IPFS_ADDRESS=ipfs:5001
+
 
       - CORE_PEER_ID=peer0.org2.example.com
       - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
@@ -173,3 +239,7 @@ services:
       - "6380:6379"
     networks:
       - test    
+
+# volumes:
+#   ipfs-data:
+#   ipfs-cluster-data:

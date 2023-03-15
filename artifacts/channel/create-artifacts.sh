@@ -12,7 +12,7 @@
 SYS_CHANNEL="sys-channel"
 
 # channel name defaults to "mychannel"
-CHANNEL_NAME="mychannel"
+CHANNEL_NAME="oms"
 
 echo $CHANNEL_NAME
 

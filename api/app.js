@@ -33,23 +33,6 @@ app.post("/login", async function (req, res) {
   await authRoutes.loginUser(req, res);
 });
 
-const verifyToken = (req, res, next) => {
-  const bearerHeader = req.headers["authorization"];
-  if (typeof bearerHeader != "undefined") {
-    const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearerToken;
-    jwt.verify(bearerToken, "secretKey", (err, token) => {
-      if (err) res.sendStatus(403);
-      else {
-        console.log(token);
-        next();
-      }
-    });
-  } else {
-    res.sendStatus(403);
-  }
-};
-
 
 // ******** ADMIN API ********
 
@@ -85,16 +68,7 @@ app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-revokeaccess-orphan",
   authRoutes.verifyToken,
   async function (req, res) {
-    await adminRoutes.revokeAccessFromDoctor(req, res);
-  }
-);
-
-// delete orphan api
-app.post(
-  "/channels/:channelName/chaincodes/:chaincodeName/admin-delete-orphan",
-  authRoutes.verifyToken,
-  async function (req, res) {
-    await adminRoutes.deleteOrphan(req, res);
+    await adminRoutes.revokeAccessToDoctor(req, res);
   }
 );
 
@@ -125,22 +99,77 @@ app.get(
   }
 );
 
-// get all doctor api
+// query all orphan by org api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-orphan-org",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllOrphanByOrg(req, res);
+  }
+);
+
+// query all doctor api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-doctor",
   authRoutes.verifyToken,
   async function (req, res) {
-    await adminRoutes.getDoctorsByOrgId(req, res);
+    await adminRoutes.queryAllDoctor(req, res);
   }
 );
 
+// query all doctor by org api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-doctor-org",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllDoctorByOrg(req, res);
+  }
+);
+
+
 // ******** DOCTOR API ********
 
-// read assigned orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readAOrphanGranted(req, res);
+  }
+);
 
-// read assigned orphan history medical data api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan-history",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readAOrphanGrantedHistory(req, res);
+  }
+);
 
-// update orphan medical record api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-update-orphan",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.updateOrphanMedicalRecord(req, res);
+  }
+);
+
+// read orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-doctor",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readDoctor(req, res);
+  }
+);
+
+// read orphan api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan-assigned",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await doctorRoutes.readOrphanUnderDoctor(req, res);
+  }
+);
 
 // port listen
 app.listen(port, () => {

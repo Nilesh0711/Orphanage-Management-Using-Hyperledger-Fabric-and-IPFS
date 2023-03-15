@@ -3,17 +3,6 @@ const util = require("util");
 
 exports.ROLE_ADMIN = "Admin";
 exports.ROLE_DOCTOR = "Doctor";
-// exports.ROLE_PATIENT = 'patient';
-
-// exports.CHANGE_TMP_PASSWORD = 'CHANGE_TMP_PASSWORD';
-
-// exports.getMessage = function (isError, message, id = "", password = "") {
-//   if (isError) {
-//     return { error: message };
-//   } else {
-//     return { success: message, id: id, password: password };
-//   }
-// };
 
 exports.getMessage = function (isError, message, id = "") {
   if (isError) {
@@ -32,8 +21,9 @@ exports.validateRole = async function (roles, reqRole, res) {
     !roles.includes(reqRole)
   ) {
     // user's role is not authorized
-    return res.sendStatus(401).json({ message: "Unauthorized Role" });
+    return false;
   }
+  return true;
 };
 
 exports.capitalize = function (s) {
@@ -41,7 +31,7 @@ exports.capitalize = function (s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-exports.createRedisForDoctor = async function (org, i) {
+exports.createRedisForDoctor = async function (org, id) {
   // TODO: Handle using config file
   let redisPassword, port, doctorPassword, redisClient;
   if (org == "Org1") {
@@ -65,7 +55,8 @@ exports.createRedisForDoctor = async function (org, i) {
     console.log("Successfully connected to redis with port: " + port);
   });
   try {
-    await redisClient.set(org + "-" + "DOC" + i, doctorPassword);
+    // await redisClient.set(id, [doctorPassword, "Doctor"]);
+    await redisClient.HSET("doctor", id, doctorPassword);
     redisClient.quit();
     return true;
   } catch (error) {

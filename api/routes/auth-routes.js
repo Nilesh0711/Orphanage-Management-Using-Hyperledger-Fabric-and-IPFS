@@ -10,16 +10,24 @@ const jwt = require("jsonwebtoken");
 
 exports.loginUser = async (req, res) => {
   let { username, password, org, role } = req.body.args,
-    user;
+    user,
+    value;
   // using get instead of redis GET for async
   if (role === ROLE_DOCTOR || role === ROLE_ADMIN) {
     // Create a redis client based on the hospital ID
     const redisClient = await createRedisClient(org);
     // Async get
-    const value = await redisClient.get(username);
+    // const value = await redisClient.get(username);
+    if (role == "Admin") {
+      value = await redisClient.HGET("admin", username);
+      user = value === password;
+      redisClient.quit();
+    } else if (role == "Doctor") {
+      value = await redisClient.HGET("doctor", username);
+      user = value === password;
+      redisClient.quit();
+    }
     // comparing passwords
-    user = value === password;
-    redisClient.quit();
   }
 
   if (user) {
