@@ -17,10 +17,12 @@ const port = process.env.PORT || constants.port || 8000;
 const adminRoutes = require("./routes/admin-routes");
 const doctorRoutes = require("./routes/doctor-routes");
 const authRoutes = require("./routes/auth-routes");
+const fileUpload = require("express-fileupload");
 
 app.options("*", cors());
 app.use(cors());
 app.use(bodyParser.json());
+app.use(fileUpload())
 app.use(
   bodyParser.urlencoded({
     extended: false,
@@ -125,6 +127,28 @@ app.get(
     await adminRoutes.queryAllDoctorByOrg(req, res);
   }
 );
+
+
+// --------------------------> IPFS FILES
+
+// add orphan aadhaar card
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/upload/admin-orphan-aadhaar",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.addAadhaarCardFile(req, res);
+  }
+);
+
+// add orphan birth certificate
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/upload/admin-orphan-birthcert",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.addBirthCertFile(req, res);
+  }
+);
+
 
 
 // ******** DOCTOR API ********

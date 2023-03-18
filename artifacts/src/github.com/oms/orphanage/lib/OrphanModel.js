@@ -17,6 +17,8 @@ class Orphan {
     this.isAdopted = isAdopted;
     this.org = org;
     this.background = background;
+    this.aadhaarHash = "",
+    this.birthCertHash = "",
     this.changedBy = [],
     this.allergies = [],
     this.diagnosis = [],

@@ -62,6 +62,8 @@ class AdminContract extends OrphanChaincode {
       org: asset.org,
       background: asset.background,
       permissionGranted: asset.permissionGranted,
+      aadhaarHash: asset.aadhaarHash,
+      birthCertHash: asset.birthCertHash,
     };
     return asset;
   }
@@ -84,9 +86,14 @@ class AdminContract extends OrphanChaincode {
     if (!exists) {
       throw new Error(`The asset ${orphanId} does not exist`);
     }
-
+    let orphan = await OrphanChaincode.prototype.readOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan.toString());
     // overwriting original asset with new asset
     const updatedOrphan = {
+      ...orphan,
       id: orphanId,
       name: name,
       gender: gender,
@@ -191,6 +198,9 @@ class AdminContract extends OrphanChaincode {
         org: obj.Record.org,
         background: obj.Record.background,
         permissionGranted: obj.Record.permissionGranted,
+        aadhaarHash: obj.Record.aadhaarHash,
+        birthCertHash: obj.Record.birthCertHash,
+
       };
     }
 
@@ -312,5 +322,57 @@ class AdminContract extends OrphanChaincode {
     }
     return allResults;
   };
+
+   // UpdateAsset updates an existing asset in the world state with provided parameters.
+   async addOrphanAadhaarFile(ctx, args) {
+    args = JSON.parse(args.toString());
+    let {
+      orphanId,
+      hash
+    } = args;
+    let data = { orphanId: orphanId };
+    const exists = await this.orphanExists(ctx, JSON.stringify(data));
+    if (!exists) {
+      throw new Error(`The asset ${orphanId} does not exist`);
+    }
+    let orphan = await OrphanChaincode.prototype.readOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan.toString());
+    // overwriting original asset with new asset
+    const updatedOrphan = {
+      ...orphan,
+      aadhaarHash:hash
+    };
+    ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(updatedOrphan)));
+    return JSON.stringify({message:"Aadhaar has been uploaded successfully"});
+  }
+
+  async addOrphanBirthCertFile(ctx, args) {
+    args = JSON.parse(args.toString());
+    let {
+      orphanId,
+      hash
+    } = args;
+    let data = { orphanId: orphanId };
+    const exists = await this.orphanExists(ctx, JSON.stringify(data));
+    if (!exists) {
+      throw new Error(`The asset ${orphanId} does not exist`);
+    }
+    let orphan = await OrphanChaincode.prototype.readOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan.toString());
+    // overwriting original asset with new asset
+    const updatedOrphan = {
+      ...orphan,
+      birthCertHash:hash
+    };
+    ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(updatedOrphan)));
+    return JSON.stringify({message:"birthCert has been uploaded successfully"});
+  }
+
 }
 module.exports = AdminContract;
