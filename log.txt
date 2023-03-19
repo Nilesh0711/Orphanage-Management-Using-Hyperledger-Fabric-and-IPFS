@@ -1,3 +1,0 @@
-Installed chaincodes on peer:
-Package ID: orphanage_1:ba18b0f5a6202b7f3bf471dee5dc38a240154885d38f4cb787802e99eac3b7a3, Label: orphanage_1
-Package ID: doctor_1:ab44e0ec0e194c8fa0e07bc462d486b08fb67be40e1189482e227f71b19d7266, Label: doctor_1
