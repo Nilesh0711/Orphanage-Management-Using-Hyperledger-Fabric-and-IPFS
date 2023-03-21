@@ -200,7 +200,6 @@ class AdminContract extends OrphanChaincode {
         permissionGranted: obj.Record.permissionGranted,
         aadhaarHash: obj.Record.aadhaarHash,
         birthCertHash: obj.Record.birthCertHash,
-
       };
     }
 
@@ -235,11 +234,31 @@ class AdminContract extends OrphanChaincode {
     return result.payload.toString();
   }
 
+  // Create new Parent
+  async createParent(ctx, args) {
+    let result = await ctx.stub.invokeChaincode(
+      "parent",
+      ["ParentContract:createParent", args],
+      "oms"
+    );
+    return result.payload.toString();
+  }
+
   // Get Latest Doctor Id
   async getLatestDoctorId(ctx, args) {
     let result = await ctx.stub.invokeChaincode(
       "doctor",
       ["DoctorContract:getLatestDoctorId", args],
+      "oms"
+    );
+    return result.payload.toString();
+  }
+
+   // Get Latest Doctor Id
+   async getLatestParentId(ctx, args) {
+    let result = await ctx.stub.invokeChaincode(
+      "parent",
+      ["ParentContract:getLatestParentId", args],
       "oms"
     );
     return result.payload.toString();
@@ -373,6 +392,5 @@ class AdminContract extends OrphanChaincode {
     ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(updatedOrphan)));
     return JSON.stringify({message:"birthCert has been uploaded successfully"});
   }
-
 }
 module.exports = AdminContract;

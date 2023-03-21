@@ -16,6 +16,8 @@ const port = process.env.PORT || constants.port || 8000;
 
 const adminRoutes = require("./routes/admin-routes");
 const doctorRoutes = require("./routes/doctor-routes");
+const parentRoutes = require("./routes/parent-routes");
+
 const authRoutes = require("./routes/auth-routes");
 const fileUpload = require("express-fileupload");
 
@@ -80,6 +82,15 @@ app.post(
   authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.createDoctor(req, res);
+  }
+);
+
+// create parent api
+app.post(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-create-parent",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.createParent(req, res);
   }
 );
 
@@ -150,9 +161,10 @@ app.post(
 );
 
 
-
 // ******** DOCTOR API ********
 
+
+// Doctor read orphan 
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan",
   authRoutes.verifyToken,
@@ -161,6 +173,7 @@ app.get(
   }
 );
 
+// Doctor read orphan medical history
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan-history",
   authRoutes.verifyToken,
@@ -169,6 +182,7 @@ app.get(
   }
 );
 
+// Doctor update orphan medical data
 app.post(
   "/channels/:channelName/chaincodes/:chaincodeName/doctor-update-orphan",
   authRoutes.verifyToken,
@@ -177,7 +191,7 @@ app.post(
   }
 );
 
-// read orphan api
+// Read doctor data using doctorId
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-doctor",
   authRoutes.verifyToken,
@@ -186,7 +200,7 @@ app.get(
   }
 );
 
-// read orphan api
+// Read all orphan assigned under doctor
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/doctor-read-orphan-assigned",
   authRoutes.verifyToken,
@@ -194,6 +208,38 @@ app.get(
     await doctorRoutes.readOrphanUnderDoctor(req, res);
   }
 );
+
+
+// ******** PARENT API ********
+
+// Read parent data using parentId
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/parent-read-parent",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await parentRoutes.readParent(req, res);
+  }
+);
+
+// Read orphan data with current medical records
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/parent-read-orphan",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await parentRoutes.readOrphan(req, res);
+  }
+);
+
+// Read orphan medical history 
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/parent-read-orphan-history",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await parentRoutes.readOrphanMedicalHistory(req, res);
+  }
+);
+
+
 
 // port listen
 app.listen(port, () => {

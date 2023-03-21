@@ -4,6 +4,7 @@ const {
   getMessage,
   validateRole,
   createRedisForDoctor,
+  createRedisForParent
 } = require("../utils/utils");
 const network = require("../app/helper");
 
@@ -134,11 +135,84 @@ exports.createDoctor = async (req, res) => {
   try {
     console.log("Registering user in wallet with userId " + args.doctorId);
     await network.registerUser(org, userIdToAdd);
+    await createRedisForDoctor(org , userIdToAdd);
     res
       .status(200)
       .send(getMessage(false, "Successfully registered Doctor.", userIdToAdd));
   } catch (error) {
     console.log("\nSome error occured in Contract:DeleteDoctor\n");
+    console.log(error);
+    res.status(500).send({ error });
+  }
+};
+
+exports.createParent = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org, args } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+
+  // Set up and connect to Fabric Gateway using the username and org in header
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // get lastest orphan id from ledger
+  let lastId = await network.invoke(
+    networkObj,
+    true,
+    role + "Contract:getLatestParentId",
+    JSON.stringify(args),
+    res
+  );
+
+  lastId = JSON.parse(lastId.toString());
+  console.log(lastId);
+
+  lastId = parseInt(lastId.id.slice(7)) + 1;
+
+  const userIdToAdd = "OMS-Par" + lastId;
+  args.parentId = userIdToAdd;
+  args.org = org
+  console.log(userIdToAdd);
+
+  // invoke create orphan function in admin contract
+  try {
+    console.log("Registering user with userid " + args.parentId + " in ledger");
+    let result = await network.invoke(
+      networkObj,
+      false,
+      role + "Contract:createParent",
+      JSON.stringify(args),
+      res
+    );
+    console.log("Successfully registered user in ledger");
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
+  } catch (error) {
+    console.log("\nSome error occured in Contract:createParent\n");
+    console.log(error);
+    res
+      .status(400)
+      .send({ message: "Some error occurred while creating parent" });
+  }
+
+  // Enroll and register the user with the CA and adds the user to the wallet.
+  try {
+    console.log("Registering user in wallet with userId " + args.parentId);
+    await network.registerUser(org, userIdToAdd);
+    await createRedisForParent(org , userIdToAdd);
+    res
+      .status(200)
+      .send(getMessage(false, "Successfully registered Parent.", userIdToAdd));
+  } catch (error) {
+    console.log("\nSome error occured in Contract:DeleteParent\n");
     console.log(error);
     res.status(500).send({ error });
   }

@@ -4,6 +4,7 @@ const {
   ROLE_DOCTOR,
   getMessage,
   validateRole,
+  ROLE_PARENT,
 } = require("../utils/utils");
 const { createRedisClient } = require("../utils/utils");
 const jwt = require("jsonwebtoken");
@@ -13,7 +14,7 @@ exports.loginUser = async (req, res) => {
     user,
     value;
   // using get instead of redis GET for async
-  if (role === ROLE_DOCTOR || role === ROLE_ADMIN) {
+  if (role === ROLE_DOCTOR || role === ROLE_ADMIN || role == ROLE_PARENT) {
     // Create a redis client based on the hospital ID
     const redisClient = await createRedisClient(org);
     // Async get
@@ -24,6 +25,11 @@ exports.loginUser = async (req, res) => {
       redisClient.quit();
     } else if (role == "Doctor") {
       value = await redisClient.HGET("doctor", username);
+      user = value === password;
+      redisClient.quit();
+    }
+    else if (role == "Parent") {
+      value = await redisClient.HGET("parent", username);
       user = value === password;
       redisClient.quit();
     }

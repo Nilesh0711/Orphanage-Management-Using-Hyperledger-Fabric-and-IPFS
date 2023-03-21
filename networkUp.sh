@@ -199,6 +199,14 @@ echo
 sleep 1
 
 echo
+echo "**************************************************************"
+echo "deploy chaincode for parent"
+echo "**************************************************************"
+echo
+./deployParentChaincode.sh
+sleep 1
+
+echo
 echo "Removing wallets"
 echo
 cd api
