@@ -108,23 +108,12 @@ class ParentContract extends ParentChaincode {
   // Read orphan medical details
   async readOrphanMedicalDetails(ctx, args) {
     args = JSON.parse(args.toString());
-    let { parentId } = args;
-    let data = { parentId };
-    const exists = await this.parentExists(ctx, JSON.stringify(data));
-    if (!exists) {
-      return `The user ${parentId} does not  exist`;
-    }
-    let parent = await ParentChaincode.prototype.readParent(
-      ctx,
-      JSON.stringify(data)
-    );
-    return parent;
-    parent = JSON.parse(parent.toString());
+    let { orphanId } = args;
     let result = await ctx.stub.invokeChaincode(
       "orphanage",
       [
         "AdminContract:getOrphanMedicalHistory",
-        JSON.stringify({ orphanId: parent.orphanId }),
+        JSON.stringify({ orphanId }),
       ],
       "oms"
     );

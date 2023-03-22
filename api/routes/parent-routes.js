@@ -123,7 +123,7 @@ exports.readOrphanMedicalHistory = async (req, res) => {
         networkObj,
         true,
         role + "Contract:readOrphanMedicalDetails",
-        JSON.stringify({ parentId:username }),
+        JSON.stringify({ orphanId }),
         res
       );
       if (result.statusCode != 500) {

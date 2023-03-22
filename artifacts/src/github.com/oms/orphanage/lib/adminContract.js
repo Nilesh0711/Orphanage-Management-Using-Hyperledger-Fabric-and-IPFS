@@ -77,7 +77,6 @@ class AdminContract extends OrphanChaincode {
       gender,
       dob,
       yearOfEnroll,
-      isAdopted,
       org,
       background,
     } = args;
@@ -99,9 +98,33 @@ class AdminContract extends OrphanChaincode {
       gender: gender,
       dob: dob,
       yearOfEnroll: yearOfEnroll,
-      isAdopted: isAdopted,
       org: org,
       background: background,
+    };
+    ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(updatedOrphan)));
+    return JSON.stringify(updatedOrphan);
+  }
+
+  // UpdateAsset updates an existing asset in the world state with provided parameters.
+  async updateOrphanToAdopted(ctx, args) {
+    args = JSON.parse(args.toString());
+    let {
+      orphanId,
+    } = args;
+    let data = { orphanId: orphanId };
+    const exists = await this.orphanExists(ctx, JSON.stringify(data));
+    if (!exists) {
+      throw new Error(`The asset ${orphanId} does not exist`);
+    }
+    let orphan = await OrphanChaincode.prototype.readOrphan(
+      ctx,
+      JSON.stringify(data)
+    );
+    orphan = JSON.parse(orphan.toString());
+    // overwriting original asset with new asset
+    const updatedOrphan = {
+      ...orphan,
+      isAdopted:true
     };
     ctx.stub.putState(orphanId, Buffer.from(JSON.stringify(updatedOrphan)));
     return JSON.stringify(updatedOrphan);

@@ -195,6 +195,17 @@ exports.createParent = async (req, res) => {
     console.log("Successfully registered user in ledger");
     console.log("Result is : ");
     console.log(JSON.parse(result.toString()));
+    console.log("Shifing orphan to adopted in ledger");
+    result = await network.invoke(
+      networkObj,
+      false,
+      role + "Contract:updateOrphanToAdopted",
+      JSON.stringify(args),
+      res
+    );
+    console.log("Successfully changed orphan to adopted in ledger");
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
   } catch (error) {
     console.log("\nSome error occured in Contract:createParent\n");
     console.log(error);
