@@ -471,6 +471,58 @@ exports.queryAllDoctor = async (req, res) => {
   }
 };
 
+exports.queryAllParent = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+  // Set up and connect to Fabric Gateway using the username and org in header
+  // let args = req.body.args;
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // get lastest orphan id from ledger
+  try {
+    let result = await network.invoke(
+      networkObj,
+      true,
+      role + "Contract:queryAllParent",
+      JSON.stringify({}),
+      res
+    );
+    console.log("Result is : ");
+    let arr = JSON.parse(result.toString());
+    let allResults = [];
+    arr.forEach((element) => {
+      allResults.push({
+        id: element.Record.id,
+        name: element.Record.name,
+        isMarried: element.Record.isMarried,
+        email: element.Record.email,
+        orphanId: element.Record.orphanId,
+        phone: element.Record.phone,
+        address: element.Record.address,
+        org: element.Record.org,
+        occupation: element.Record.occupation,
+      });
+    });
+    res.status(200).send({
+      result: allResults,
+    });
+    return;
+  } catch (error) {
+    console.log("Some error occurred in admin query all parent");
+    console.log(error);
+  }
+};
+
 exports.queryAllDoctorByOrg = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org } = req.body;
@@ -520,6 +572,59 @@ exports.queryAllDoctorByOrg = async (req, res) => {
     return;
   } catch (error) {
     console.log("Some error occurred in admin query all doctor by org");
+    console.log(error);
+    // res.send({error});
+  }
+};
+
+exports.queryAllParentByOrg = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+  // Set up and connect to Fabric Gateway using the username and org in header
+  // let args = req.body.args;
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // get lastest orphan id from ledger
+  try {
+    let result = await network.invoke(
+      networkObj,
+      true,
+      role + "Contract:queryAllParentByOrg",
+      JSON.stringify({ org }),
+      res
+    );
+    console.log("Result is : ");
+    let arr = JSON.parse(result.toString());
+    let allResults = [];
+    arr.forEach((element) => {
+      allResults.push({
+        id: element.element.Record.id,
+        name: element.element.Record.name,
+        isMarried: element.element.Record.isMarried,
+        email: element.element.Record.email,
+        orphanId: element.element.Record.orphanId,
+        phone: element.element.Record.phone,
+        address: element.element.Record.address,
+        org: element.element.Record.org,
+        occupation: element.element.Record.occupation,
+      });
+    });
+    res.status(200).send({
+      result: allResults,
+    });
+    return;
+  } catch (error) {
+    console.log("Some error occurred in admin query all parent by org");
     console.log(error);
     // res.send({error});
   }

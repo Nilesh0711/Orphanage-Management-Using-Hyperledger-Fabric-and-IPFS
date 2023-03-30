@@ -236,10 +236,28 @@ class AdminContract extends OrphanChaincode {
     return data.payload.toString();
   }
 
+  async queryAllParent(ctx, args) {
+    let data = await ctx.stub.invokeChaincode(
+      "parent",
+      ["ParentChaincode:getAllParent", args],
+      "oms"
+    );
+    return data.payload.toString();
+  }
+
   async queryAllDoctorByOrg(ctx, args) {
     let data = await ctx.stub.invokeChaincode(
       "doctor",
       ["DoctorContract:queryAllDoctorByOrg", args],
+      "oms"
+    );
+    return data.payload.toString();
+  }
+
+  async queryAllParentByOrg(ctx, args) {
+    let data = await ctx.stub.invokeChaincode(
+      "parent",
+      ["ParentContract:queryAllParentByOrg", args],
       "oms"
     );
     return data.payload.toString();

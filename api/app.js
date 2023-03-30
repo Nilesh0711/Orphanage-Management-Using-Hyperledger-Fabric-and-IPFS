@@ -130,12 +130,30 @@ app.get(
   }
 );
 
+// query all parent api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-queryall-parent",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllParent(req, res);
+  }
+);
+
 // query all doctor by org api
 app.get(
   "/channels/:channelName/chaincodes/:chaincodeName/admin-doctor-org",
   authRoutes.verifyToken,
   async function (req, res) {
     await adminRoutes.queryAllDoctorByOrg(req, res);
+  }
+);
+
+// query all parent by org api
+app.get(
+  "/channels/:channelName/chaincodes/:chaincodeName/admin-parent-org",
+  authRoutes.verifyToken,
+  async function (req, res) {
+    await adminRoutes.queryAllParentByOrg(req, res);
   }
 );
 

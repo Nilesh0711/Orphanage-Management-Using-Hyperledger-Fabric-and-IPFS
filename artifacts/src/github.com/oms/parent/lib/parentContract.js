@@ -130,6 +130,23 @@ class ParentContract extends ParentChaincode {
     return result.payload.toString();
   }
 
+  //Retrieves all parent details by org
+  async queryAllParentByOrg(ctx, args) {
+    args = JSON.parse(args);
+    let org = args.org;
+    let resultsIterator = await ctx.stub.getStateByRange("", "");
+    let asset = await this.getAllResults(resultsIterator, false);
+    let allResults = [];
+    for (let index = 0; index < asset.length; index++) {
+      const element = asset[index];
+      if (element.Record.org == org)
+        allResults.push({
+          element,
+        });
+    }
+    return allResults;
+  }
+
 
 }
 module.exports = ParentContract;
