@@ -25,7 +25,6 @@ class AdminContract extends OrphanChaincode {
       gender,
       dob,
       yearOfEnroll,
-      isAdopted,
       org,
       background,
     } = args;
@@ -40,7 +39,6 @@ class AdminContract extends OrphanChaincode {
       gender,
       dob,
       yearOfEnroll,
-      isAdopted,
       org,
       background
     );

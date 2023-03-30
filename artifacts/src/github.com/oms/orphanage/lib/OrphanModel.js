@@ -5,7 +5,6 @@ class Orphan {
     gender,
     dob,
     yearOfEnroll,
-    isAdopted,
     org,
     background
   ) {
@@ -14,7 +13,7 @@ class Orphan {
     this.gender = gender;
     this.dob = dob;
     this.yearOfEnroll = yearOfEnroll;
-    this.isAdopted = isAdopted;
+    this.isAdopted = false;
     this.org = org;
     this.background = background;
     this.aadhaarHash = "",
