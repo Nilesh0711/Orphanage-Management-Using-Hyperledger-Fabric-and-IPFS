@@ -4,8 +4,11 @@ const {
   getMessage,
   validateRole,
   createRedisForDoctor,
+  createRedisForParent
 } = require("../utils/utils");
 const network = require("../app/helper");
+
+const ipfs = require("ipfs-http-client");
 
 exports.createOrphan = async (req, res) => {
   // User role from the request header is validated
@@ -132,11 +135,95 @@ exports.createDoctor = async (req, res) => {
   try {
     console.log("Registering user in wallet with userId " + args.doctorId);
     await network.registerUser(org, userIdToAdd);
+    await createRedisForDoctor(org , userIdToAdd);
     res
       .status(200)
       .send(getMessage(false, "Successfully registered Doctor.", userIdToAdd));
   } catch (error) {
     console.log("\nSome error occured in Contract:DeleteDoctor\n");
+    console.log(error);
+    res.status(500).send({ error });
+  }
+};
+
+exports.createParent = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org, args } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+
+  // Set up and connect to Fabric Gateway using the username and org in header
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // get lastest orphan id from ledger
+  let lastId = await network.invoke(
+    networkObj,
+    true,
+    role + "Contract:getLatestParentId",
+    JSON.stringify(args),
+    res
+  );
+
+  lastId = JSON.parse(lastId.toString());
+  console.log(lastId);
+
+  lastId = parseInt(lastId.id.slice(7)) + 1;
+
+  const userIdToAdd = "OMS-Par" + lastId;
+  args.parentId = userIdToAdd;
+  args.org = org
+  console.log(userIdToAdd);
+
+  // invoke create orphan function in admin contract
+  try {
+    console.log("Registering user with userid " + args.parentId + " in ledger");
+    let result = await network.invoke(
+      networkObj,
+      false,
+      role + "Contract:createParent",
+      JSON.stringify(args),
+      res
+    );
+    console.log("Successfully registered user in ledger");
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
+    console.log("Shifing orphan to adopted in ledger");
+    result = await network.invoke(
+      networkObj,
+      false,
+      role + "Contract:updateOrphanToAdopted",
+      JSON.stringify(args),
+      res
+    );
+    console.log("Successfully changed orphan to adopted in ledger");
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
+  } catch (error) {
+    console.log("\nSome error occured in Contract:createParent\n");
+    console.log(error);
+    res
+      .status(400)
+      .send({ message: "Some error occurred while creating parent" });
+  }
+
+  // Enroll and register the user with the CA and adds the user to the wallet.
+  try {
+    console.log("Registering user in wallet with userId " + args.parentId);
+    await network.registerUser(org, userIdToAdd);
+    await createRedisForParent(org , userIdToAdd);
+    res
+      .status(200)
+      .send(getMessage(false, "Successfully registered Parent.", userIdToAdd));
+  } catch (error) {
+    console.log("\nSome error occured in Contract:DeleteParent\n");
     console.log(error);
     res.status(500).send({ error });
   }
@@ -314,6 +401,9 @@ exports.queryAllOrphanByOrg = async (req, res) => {
         dob: element.element.Record.dob,
         isAdopted: element.element.Record.isAdopted,
         permissionGranted: element.element.Record.permissionGranted,
+        aadhaarHash: element.element.Record.aadhaarHash,
+        birthCertHash: element.element.Record.birthCertHash,
+
       });
     });
     res.status(200).send({
@@ -381,6 +471,58 @@ exports.queryAllDoctor = async (req, res) => {
   }
 };
 
+exports.queryAllParent = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+  // Set up and connect to Fabric Gateway using the username and org in header
+  // let args = req.body.args;
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // get lastest orphan id from ledger
+  try {
+    let result = await network.invoke(
+      networkObj,
+      true,
+      role + "Contract:queryAllParent",
+      JSON.stringify({}),
+      res
+    );
+    console.log("Result is : ");
+    let arr = JSON.parse(result.toString());
+    let allResults = [];
+    arr.forEach((element) => {
+      allResults.push({
+        id: element.Record.id,
+        name: element.Record.name,
+        isMarried: element.Record.isMarried,
+        email: element.Record.email,
+        orphanId: element.Record.orphanId,
+        phone: element.Record.phone,
+        address: element.Record.address,
+        org: element.Record.org,
+        occupation: element.Record.occupation,
+      });
+    });
+    res.status(200).send({
+      result: allResults,
+    });
+    return;
+  } catch (error) {
+    console.log("Some error occurred in admin query all parent");
+    console.log(error);
+  }
+};
+
 exports.queryAllDoctorByOrg = async (req, res) => {
   // User role from the request header is validated
   let { role, username, org } = req.body;
@@ -430,6 +572,59 @@ exports.queryAllDoctorByOrg = async (req, res) => {
     return;
   } catch (error) {
     console.log("Some error occurred in admin query all doctor by org");
+    console.log(error);
+    // res.send({error});
+  }
+};
+
+exports.queryAllParentByOrg = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+  // Set up and connect to Fabric Gateway using the username and org in header
+  // let args = req.body.args;
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // get lastest orphan id from ledger
+  try {
+    let result = await network.invoke(
+      networkObj,
+      true,
+      role + "Contract:queryAllParentByOrg",
+      JSON.stringify({ org }),
+      res
+    );
+    console.log("Result is : ");
+    let arr = JSON.parse(result.toString());
+    let allResults = [];
+    arr.forEach((element) => {
+      allResults.push({
+        id: element.element.Record.id,
+        name: element.element.Record.name,
+        isMarried: element.element.Record.isMarried,
+        email: element.element.Record.email,
+        orphanId: element.element.Record.orphanId,
+        phone: element.element.Record.phone,
+        address: element.element.Record.address,
+        org: element.element.Record.org,
+        occupation: element.element.Record.occupation,
+      });
+    });
+    res.status(200).send({
+      result: allResults,
+    });
+    return;
+  } catch (error) {
+    console.log("Some error occurred in admin query all parent by org");
     console.log(error);
     // res.send({error});
   }
@@ -503,4 +698,129 @@ exports.revokeAccessToDoctor = async (req, res) => {
     console.log("Some error occurred in admin revoke doctor access orphan");
     console.log(error);
   }
+};
+
+// -------------------------> ADD IPFS FILES
+
+const createClient = async () => {
+  const _ipfs = await ipfs.create({
+    host: "localhost",
+    port: "5001",
+    protocol: "http",
+  });
+  return _ipfs;
+};
+
+exports.addAadhaarCardFile = async (req, res) => {
+  // User role from the request header is validated
+  let { role, username, org, orphanId } = req.body;
+  let { chaincodeName, channelName } = req.params;
+  let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+  if (!isAuthorized)
+    return res.status(500).send({ message: "Unauthorized access" });
+
+  // add aadhaar in ipfs and get hash value
+  console.log("Storing aadhaar in ipfs..");
+  let buffer = req.files.aadhaar.data;
+  const ipfs = await createClient();
+  buffer = Buffer.from(buffer);
+  let result = await ipfs.add(buffer);
+  let hash = result.path;
+  console.log("Aadhaar uploaded to ipfs with hash "+ hash);
+
+  // Set up and connect to Fabric Gateway using the username and org in header
+  const networkObj = await network.connectToNetwork(
+    username,
+    org,
+    channelName,
+    chaincodeName,
+    res
+  );
+
+  // invoke create orphan function in admin contract
+  try {
+    console.log(
+      "Storing aadhaar hash value of " + orphanId + " in ledger"
+    );
+    let result = await network.invoke(
+      networkObj,
+      false,
+      role + "Contract:addOrphanAadhaarFile",
+      JSON.stringify({orphanId, hash}),
+      res
+    );
+    console.log(
+      "Successfully stored orphan aadhaar hash in ledger with hash value " +
+        hash
+    );
+    console.log("Result is : ");
+    console.log(JSON.parse(result.toString()));
+    res
+      .status(200)
+      .send({message:"Aadhaar of orphan has uploaded",hash});
+  } catch (error) {
+    console.log("\nSome error occured in Contract:addOrphanAadhaarFile\n");
+    console.log(error);
+    res.status(400).send({
+      message:
+        "Some error occurred while storing orphan aadhaar hash in ledger",
+    });
+  }
+};
+
+exports.addBirthCertFile = async (req, res) => {
+// User role from the request header is validated
+let { role, username, org, orphanId } = req.body;
+let { chaincodeName, channelName } = req.params;
+let isAuthorized = await validateRole([ROLE_ADMIN], role, res);
+if (!isAuthorized)
+  return res.status(500).send({ message: "Unauthorized access" });
+
+// add birthcert in ipfs and get hash value
+console.log("Storing birthcert in ipfs..");
+let buffer = req.files.birthcert.data;
+const ipfs = await createClient();
+buffer = Buffer.from(buffer);
+let result = await ipfs.add(buffer);
+let hash = result.path;
+console.log("birthcert uploaded to ipfs with hash "+ hash);
+
+// Set up and connect to Fabric Gateway using the username and org in header
+const networkObj = await network.connectToNetwork(
+  username,
+  org,
+  channelName,
+  chaincodeName,
+  res
+);
+
+// invoke create orphan function in admin contract
+try {
+  console.log(
+    "Storing birthcert hash value of " + orphanId + " in ledger"
+  );
+  let result = await network.invoke(
+    networkObj,
+    false,
+    role + "Contract:addOrphanBirthCertFile",
+    JSON.stringify({orphanId, hash}),
+    res
+  );
+  console.log(
+    "Successfully stored orphan birthcert hash in ledger with hash value " +
+      hash
+  );
+  console.log("Result is : ");
+  console.log(JSON.parse(result.toString()));
+  res
+    .status(200)
+    .send({message:"birthcert of orphan has uploaded",hash});
+} catch (error) {
+  console.log("\nSome error occured in Contract:addOrphanBirthCertFile\n");
+  console.log(error);
+  res.status(400).send({
+    message:
+      "Some error occurred while storing orphan birthcert hash in ledger",
+  });
+}
 };

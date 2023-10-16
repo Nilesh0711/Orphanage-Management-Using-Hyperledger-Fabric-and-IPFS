@@ -2,67 +2,8 @@ version: "2"
 
 networks:
   test:
-  # ipfs-network:
-  #   driver: bridge
 
 services:
-  # ipfs-cluster:
-  #   image: ipfs/ipfs-cluster:latest
-  #   container_name: ipfs-cluster
-  #   restart: always
-  #   environment:
-  #     CLUSTER_SECRET: <YOUR_CLUSTER_SECRET>
-  #     CLUSTER_IPFS_TRUST_ALL: "true"
-  #   ports:
-  #     - 9094:9094
-  #   volumes:
-  #     - /path/to/ipfs-cluster/data:/data/ipfs-cluster
-  #     - /path/to/ipfs-cluster/config:/data/ipfs-cluster/config
-  #   networks:
-  #     ipfs-network:
-  #       aliases:
-  #         - ipfs-cluster
-
-  # ipfs:
-  #   image: ipfs/go-ipfs:latest
-  #   container_name: ipfs
-  #   restart: always
-  #   command: ["--enable-pubsub-experiment"]
-  #   volumes:
-  #     - /path/to/ipfs/data:/data/ipfs
-  #     - /path/to/ipfs/config:/data/ipfs/config
-  #   networks:
-  #     ipfs-network:
-  #       aliases:
-  #         - ipfs
-
-
-  # ipfs:
-  #   image: ipfs/go-ipfs:latest
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ipfs-data:/data/ipfs
-  #   ports:
-  #     - "4001:4001"
-  #     - "127.0.0.1:5001:5001"
-  #   command: ["--enable-pubsub-experiment"]
-
-  # ipfs-cluster:
-  #   image: ipfs/ipfs-cluster:latest
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - ipfs
-  #   environment:
-  #     CLUSTER_PEERNAME: "cluster-node-1"
-  #     CLUSTER_SECRET: "your-cluster-secret"
-  #   volumes:
-  #     - ipfs-cluster-data:/data/ipfs-cluster
-  #   ports:
-  #     - "9094:9094"
-  #     - "9096:9096"
-  #     - "9097:9097"
-  #   command: ["daemon", "--bootstrap", "/ip4/172.19.0.2/tcp/4001/ipfs/QmZ2QKBFf6Czm2QX9UDfjK3qsd1YrxD1hkmfCkThZUnKqp"]
-
   orderer.example.com:
     container_name: orderer.example.com
     image: hyperledger/fabric-orderer:2.1
@@ -238,7 +179,36 @@ services:
     ports:
       - "6380:6379"
     networks:
-      - test    
+      - test 
+
+  ipfs_node_1:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs_node_1
+    environment:
+      IPFS_SWARM_KEY_FILE: /key/swarm.key
+    volumes:
+      - ./compose/ipfs0:/data/ipfs/
+      # - /Users/sixdays/tmp/ipfs/node1/staging:/export
+      # - /Users/sixdays/tmp/ipfs/node1/data:/data/ipfs
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:5001:5001"
+
+  ipfs_node_2:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs_node_2
+    environment:
+      IPFS_SWARM_KEY_FILE: /key/swarm.key
+    volumes:
+      - ./compose/ipfs1:/data/ipfs/
+      # - /Users/sixdays/tmp/ipfs/node2/staging:/export
+      # - /Users/sixdays/tmp/ipfs/node2/data:/data/ipfs
+    ports:
+      - "4002:4001"
+      - "4002:4001/udp"
+      - "127.0.0.1:8081:8080"       
 
 # volumes:
 #   ipfs-data:
